@@ -1,4 +1,4 @@
-package connectorext
+package connector
 
 import (
 	"crypto/sha256"
@@ -7,10 +7,10 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "ad163824c0115e814d754e6c537c0c7430e398f6c545b90d574ce498a80169de"
+const ContractSHA256 = "52e77dae1a2b09f210a2ee9597fe3bcbecb4ab875336e06a4a18ad3dfbcc90fb"
 
-const contractSurfaceV16 = `connectorext-v17
-PackagePath=github.com/domainry/domainry-connector-sdk/connectorext
+const contractSurfaceV1 = `connector-contract-v1
+PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 StartOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
@@ -93,7 +93,7 @@ func ComputedContractSHA256() string {
 		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{},
 	}
 	var surface strings.Builder
-	surface.WriteString(contractSurfaceV16)
+	surface.WriteString(contractSurfaceV1)
 	for _, value := range structs {
 		current := reflect.TypeOf(value)
 		surface.WriteString(current.Name())

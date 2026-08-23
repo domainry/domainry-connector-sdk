@@ -5,32 +5,32 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/domainry/domainry-connector-sdk/connectorext"
+	"github.com/domainry/domainry-connector-sdk"
 	"github.com/domainry/domainry-connector-sdk/contracttest"
 )
 
-type adapter struct{ connectorext.Adapter }
+type adapter struct{ connector.Adapter }
 
 func TestValidateAdapterRequiresDeclaredCapabilities(t *testing.T) {
-	operation, err := connectorext.BindEnqueueDelivery(connectorext.EnqueueOperation[struct{}]{
+	operation, err := connector.BindEnqueueDelivery(connector.EnqueueOperation[struct{}]{
 		ConnectorKey: "example", ProviderKey: "test", Key: "send",
 		ContractSHA256: strings.Repeat("a", 64),
-		Reliability: connectorext.ReliabilityContract{
-			Effect: connectorext.EffectWrite,
-			Idempotency: connectorext.IdempotencyContract{
-				Strategy:            connectorext.IdempotencyProviderKey,
+		Reliability: connector.ReliabilityContract{
+			Effect: connector.EffectWrite,
+			Idempotency: connector.IdempotencyContract{
+				Strategy:            connector.IdempotencyProviderKey,
 				KeyRetentionSeconds: 60,
 			},
-			Reconciliation: connectorext.ReconciliationProviderLookup,
-			Compensation:   connectorext.CompensationContract{Mode: connectorext.CompensationNone},
+			Reconciliation: connector.ReconciliationProviderLookup,
+			Compensation:   connector.CompensationContract{Mode: connector.CompensationNone},
 		},
-	}, func(context.Context, connectorext.TypedRequest[struct{}]) (connectorext.DeliveryResult, error) {
-		return connectorext.DeliveryResult{}, nil
+	}, func(context.Context, connector.TypedRequest[struct{}]) (connector.DeliveryResult, error) {
+		return connector.DeliveryResult{}, nil
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	provider, err := connectorext.NewProvider(connectorext.ProviderSchema{
+	provider, err := connector.NewProvider(connector.ProviderSchema{
 		ConnectorKey: "example", ProviderKey: "test", ProviderRevision: "1",
 	}, operation)
 	if err != nil {

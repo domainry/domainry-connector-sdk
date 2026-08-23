@@ -5,7 +5,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/domainry/domainry-connector-sdk/connectorext"
+	"github.com/domainry/domainry-connector-sdk"
 )
 
 type EchoInput struct {
@@ -17,27 +17,27 @@ type EchoOutput struct {
 }
 
 // Extensions constructs the example provider using only public SDK APIs.
-func Extensions(connectorext.Transport) (connectorext.ExtensionSet, error) {
-	bound, err := connectorext.BindCall(connectorext.CallOperation[EchoInput, EchoOutput]{
+func Extensions(connector.Transport) (connector.ExtensionSet, error) {
+	bound, err := connector.BindCall(connector.CallOperation[EchoInput, EchoOutput]{
 		ConnectorKey: "example", ProviderKey: "minimal", Key: "echo",
 		ContractSHA256: strings.Repeat("a", 64),
-		Reliability: connectorext.ReliabilityContract{
-			Effect:         connectorext.EffectRead,
-			Idempotency:    connectorext.IdempotencyContract{Strategy: connectorext.IdempotencyNatural},
-			Reconciliation: connectorext.ReconciliationNone,
-			Compensation:   connectorext.CompensationContract{Mode: connectorext.CompensationNone},
+		Reliability: connector.ReliabilityContract{
+			Effect:         connector.EffectRead,
+			Idempotency:    connector.IdempotencyContract{Strategy: connector.IdempotencyNatural},
+			Reconciliation: connector.ReconciliationNone,
+			Compensation:   connector.CompensationContract{Mode: connector.CompensationNone},
 		},
-	}, func(_ context.Context, request connectorext.TypedRequest[EchoInput]) (connectorext.TypedResult[EchoOutput], error) {
-		return connectorext.TypedResult[EchoOutput]{Output: EchoOutput{Message: request.Input.Message}}, nil
+	}, func(_ context.Context, request connector.TypedRequest[EchoInput]) (connector.TypedResult[EchoOutput], error) {
+		return connector.TypedResult[EchoOutput]{Output: EchoOutput{Message: request.Input.Message}}, nil
 	})
 	if err != nil {
-		return connectorext.ExtensionSet{}, err
+		return connector.ExtensionSet{}, err
 	}
-	provider, err := connectorext.NewProvider(connectorext.ProviderSchema{
+	provider, err := connector.NewProvider(connector.ProviderSchema{
 		ConnectorKey: "example", ProviderKey: "minimal", ProviderRevision: "1",
 	}, bound)
 	if err != nil {
-		return connectorext.ExtensionSet{}, err
+		return connector.ExtensionSet{}, err
 	}
-	return connectorext.ExtensionSet{Providers: []connectorext.Adapter{provider}}, nil
+	return connector.ExtensionSet{Providers: []connector.Adapter{provider}}, nil
 }

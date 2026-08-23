@@ -1,4 +1,4 @@
-package connectorext
+package connector
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const ContractVersion = "connectorext-v17"
+const ContractVersion = "connector-contract-v1"
 
 type OperationMode string
 

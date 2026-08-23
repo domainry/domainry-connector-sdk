@@ -6,12 +6,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/domainry/domainry-connector-sdk/connectorext"
+	"github.com/domainry/domainry-connector-sdk"
 )
 
 // ValidateAdapter checks the descriptor and the capability required by its
 // declared reliability contracts.
-func ValidateAdapter(adapter connectorext.Adapter) error {
+func ValidateAdapter(adapter connector.Adapter) error {
 	if adapter == nil {
 		return errors.New("connector adapter is required")
 	}
@@ -20,7 +20,7 @@ func ValidateAdapter(adapter connectorext.Adapter) error {
 		return fmt.Errorf("validate provider descriptor: %w", err)
 	}
 	if descriptor.RequiresReconciler() {
-		if _, ok := adapter.(connectorext.Reconciler); !ok {
+		if _, ok := adapter.(connector.Reconciler); !ok {
 			return fmt.Errorf("connector provider %s/%s declares reconciliation but does not implement Reconciler", descriptor.ConnectorKey, descriptor.ProviderKey)
 		}
 	}

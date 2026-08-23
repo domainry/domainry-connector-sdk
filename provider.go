@@ -1,4 +1,4 @@
-package connectorext
+package connector
 
 import (
 	"context"

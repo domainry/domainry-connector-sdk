@@ -1,4 +1,4 @@
-package connectorext
+package connector
 
 import (
 	"context"
@@ -563,11 +563,11 @@ func TestProviderRegistryPreservesOnlyCapabilitiesActuallyImplemented(t *testing
 }
 
 func TestContractIdentityIsStable(t *testing.T) {
-	if ContractVersion != "connectorext-v17" {
-		t.Fatalf("connectorext contract version=%q", ContractVersion)
+	if ContractVersion != "connector-contract-v1" {
+		t.Fatalf("connector contract version=%q", ContractVersion)
 	}
 	if actual := ComputedContractSHA256(); actual != ContractSHA256 {
-		t.Fatalf("connectorext contract hash drifted: got %s, update only with an intentional contract version change", actual)
+		t.Fatalf("connector contract hash drifted: got %s, update only with an intentional contract version change", actual)
 	}
 }
 

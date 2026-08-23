@@ -1,4 +1,4 @@
-package connectorext
+package connector
 
 // SDKVersion identifies the release line of this module independently from
 // the compatibility identity of its public Connector contract.
