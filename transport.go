@@ -13,11 +13,14 @@ type Transport interface {
 }
 
 type HTTPRequest struct {
-	Method           string              `json:"method"`
-	URL              string              `json:"url"`
-	Headers          map[string][]string `json:"headers,omitempty"`
-	Body             []byte              `json:"body,omitempty"`
-	MaxResponseBytes int64               `json:"max_response_bytes,omitempty"`
+	Method  string              `json:"method"`
+	URL     string              `json:"url"`
+	Headers map[string][]string `json:"headers,omitempty"`
+	// SecretQuery is resolved secret material that Runtime injects immediately
+	// before dispatch. It is deliberately excluded from serialization.
+	SecretQuery      map[string]string `json:"-"`
+	Body             []byte            `json:"body,omitempty"`
+	MaxResponseBytes int64             `json:"max_response_bytes,omitempty"`
 }
 
 type HTTPResponse struct {

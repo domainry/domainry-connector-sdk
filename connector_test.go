@@ -1,6 +1,7 @@
 package connector
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -563,7 +564,7 @@ func TestProviderRegistryPreservesOnlyCapabilitiesActuallyImplemented(t *testing
 }
 
 func TestContractIdentityIsStable(t *testing.T) {
-	if ContractVersion != "connector-contract-v2" {
+	if ContractVersion != "connector-contract-v3" {
 		t.Fatalf("connector contract version=%q", ContractVersion)
 	}
 	if actual := ComputedContractSHA256(); actual != ContractSHA256 {
@@ -634,6 +635,22 @@ func TestTransportContractHasOnlyApprovedOutboundOperations(t *testing.T) {
 		if _, ok := transport.MethodByName(name); !ok {
 			t.Fatalf("Transport is missing %s", name)
 		}
+	}
+}
+
+func TestHTTPRequestSecretQueryIsNotSerialized(t *testing.T) {
+	payload, err := json.Marshal(HTTPRequest{
+		URL:         "https://example.test/resource",
+		SecretQuery: map[string]string{"apiKey": "resolved-secret"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Contains(payload, []byte("apiKey")) || bytes.Contains(payload, []byte("resolved-secret")) {
+		t.Fatalf("serialized HTTPRequest leaked SecretQuery: %s", payload)
+	}
+	if _, exists := reflect.TypeOf(HTTPRequest{}).FieldByName("SecretQuery"); !exists {
+		t.Fatal("HTTPRequest is missing SecretQuery")
 	}
 }
 
