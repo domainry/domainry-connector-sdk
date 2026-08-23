@@ -564,7 +564,7 @@ func TestProviderRegistryPreservesOnlyCapabilitiesActuallyImplemented(t *testing
 }
 
 func TestContractIdentityIsStable(t *testing.T) {
-	if ContractVersion != "connector-contract-v8" {
+	if ContractVersion != "connector-contract-v9" {
 		t.Fatalf("connector contract version=%q", ContractVersion)
 	}
 	if actual := ComputedContractSHA256(); actual != ContractSHA256 {
@@ -697,6 +697,22 @@ func TestFilesystemTransportIsAnExplicitOptionalCapability(t *testing.T) {
 	for _, operation := range []FilesystemOperation{FilesystemOperationProbe, FilesystemOperationRead, FilesystemOperationWrite, FilesystemOperationDelete} {
 		if operation == "" {
 			t.Fatal("filesystem operation must be stable")
+		}
+	}
+}
+
+func TestProcessTransportExposesOnlyGovernedLineSessions(t *testing.T) {
+	transport := reflect.TypeOf((*ProcessTransport)(nil)).Elem()
+	if transport.NumMethod() != 1 || transport.Method(0).Name != "StartProcess" {
+		t.Fatalf("ProcessTransport=%v", transport)
+	}
+	session := reflect.TypeOf((*ProcessSession)(nil)).Elem()
+	if session.NumMethod() != 3 {
+		t.Fatalf("ProcessSession methods=%d", session.NumMethod())
+	}
+	for _, method := range []string{"Close", "ReceiveLine", "SendLine"} {
+		if _, ok := session.MethodByName(method); !ok {
+			t.Fatalf("ProcessSession is missing %s", method)
 		}
 	}
 }

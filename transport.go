@@ -100,6 +100,27 @@ type FilesystemResult struct {
 	Exists  bool   `json:"exists"`
 }
 
+// ProcessTransport is an optional Runtime-owned capability for Providers that
+// speak a line-delimited protocol over a governed child process. Runtime owns
+// executable authorization, process creation, stdio, limits, and termination.
+type ProcessTransport interface {
+	StartProcess(context.Context, ProcessRequest) (ProcessSession, error)
+}
+
+type ProcessRequest struct {
+	Executable       string        `json:"executable"`
+	Arguments        []string      `json:"arguments,omitempty"`
+	WorkingDirectory string        `json:"working_directory,omitempty"`
+	MaxMessageBytes  int64         `json:"max_message_bytes,omitempty"`
+	ShutdownGrace    time.Duration `json:"shutdown_grace,omitempty"`
+}
+
+type ProcessSession interface {
+	SendLine(context.Context, []byte) error
+	ReceiveLine(context.Context) ([]byte, error)
+	Close(context.Context) error
+}
+
 type HTTPRequest struct {
 	Method  string              `json:"method"`
 	URL     string              `json:"url"`
