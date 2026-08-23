@@ -4,9 +4,9 @@ import "testing"
 
 func TestCurrentIdentity(t *testing.T) {
 	want := Identity{
-		SDKVersion:      "v0.1.0-dev.1",
-		ContractVersion: "connector-contract-v1",
-		ContractSHA256:  "52e77dae1a2b09f210a2ee9597fe3bcbecb4ab875336e06a4a18ad3dfbcc90fb",
+		SDKVersion:      "v0.1.0-dev.2",
+		ContractVersion: "connector-contract-v2",
+		ContractSHA256:  "7c0840aba1388add0ec482254f144349e1ee309b5480f368f9d32a0218903d1d",
 	}
 	if got := CurrentIdentity(); got != want {
 		t.Fatalf("CurrentIdentity() = %+v, want %+v", got, want)

@@ -2,7 +2,7 @@ package connector
 
 // SDKVersion identifies the release line of this module independently from
 // the compatibility identity of its public Connector contract.
-const SDKVersion = "v0.1.0-dev.1"
+const SDKVersion = "v0.1.0-dev.2"
 
 // Identity is recorded by hosts and generated projects so semantic SDK
 // releases cannot accidentally hide a public contract change.

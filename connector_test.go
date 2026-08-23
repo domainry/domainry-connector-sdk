@@ -450,7 +450,7 @@ func TestProviderSchemaRejectsOpenOrInconsistentFieldContracts(t *testing.T) {
 func TestProviderRegistryUsesExactPairAndExtensionRegistrationIsAtomic(t *testing.T) {
 	provider := memberProvider(t)
 	registry := NewRegistry()
-	if err := registry.RegisterExtensionSet(ExtensionSet{Providers: []Adapter{provider}}); err != nil {
+	if err := registry.RegisterProviderSet(ProviderSet{Providers: []Adapter{provider}}); err != nil {
 		t.Fatal(err)
 	}
 	if _, ok := registry.Provider("member_center", "acme"); !ok {
@@ -459,7 +459,7 @@ func TestProviderRegistryUsesExactPairAndExtensionRegistrationIsAtomic(t *testin
 	if _, ok := registry.Provider("member_center", ""); ok {
 		t.Fatal("provider fallback must not resolve")
 	}
-	if err := registry.RegisterExtensionSet(ExtensionSet{Providers: []Adapter{provider, provider}}); !errors.Is(err, ErrProviderDuplicate) {
+	if err := registry.RegisterProviderSet(ProviderSet{Providers: []Adapter{provider, provider}}); !errors.Is(err, ErrProviderDuplicate) {
 		t.Fatalf("duplicate error=%v", err)
 	}
 	if len(registry.Descriptors()) != 1 {
@@ -563,7 +563,7 @@ func TestProviderRegistryPreservesOnlyCapabilitiesActuallyImplemented(t *testing
 }
 
 func TestContractIdentityIsStable(t *testing.T) {
-	if ContractVersion != "connector-contract-v1" {
+	if ContractVersion != "connector-contract-v2" {
 		t.Fatalf("connector contract version=%q", ContractVersion)
 	}
 	if actual := ComputedContractSHA256(); actual != ContractSHA256 {
@@ -572,9 +572,9 @@ func TestContractIdentityIsStable(t *testing.T) {
 }
 
 func TestOptionalCapabilitiesHaveIndependentClosedEnvelopes(t *testing.T) {
-	extensions := reflect.TypeOf(ExtensionSet{})
-	if extensions.NumField() != 1 || extensions.Field(0).Name != "Providers" {
-		t.Fatalf("ExtensionSet must expose only Provider adapters, fields=%v", extensions.NumField())
+	providers := reflect.TypeOf(ProviderSet{})
+	if providers.NumField() != 1 || providers.Field(0).Name != "Providers" {
+		t.Fatalf("ProviderSet must expose only Provider adapters, fields=%v", providers.NumField())
 	}
 	validator := reflect.TypeOf((*ConfigValidator)(nil)).Elem()
 	if validator.NumMethod() != 1 {

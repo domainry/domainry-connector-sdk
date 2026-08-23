@@ -76,26 +76,26 @@ var SyncMember = connector.StartOperation[Request]{
 	Reliability: connector.ReliabilityContract{Effect: connector.EffectWrite, Idempotency: connector.IdempotencyContract{Strategy: connector.IdempotencyProviderKey, KeyRetentionSeconds: 86400}, Reconciliation: connector.ReconciliationProviderLookup, Compensation: connector.CompensationContract{Mode: connector.CompensationNone}},
 }
 
-func Extensions() (connector.ExtensionSet, error) {
+func Providers() (connector.ProviderSet, error) {
 	call, err := connector.BindCall(GetMember, func(context.Context, connector.TypedRequest[Request]) (connector.TypedResult[Response], error) {
 		return connector.TypedResult[Response]{Output: Response{Name: "Ada"}}, nil
 	})
-	if err != nil { return connector.ExtensionSet{}, err }
+	if err != nil { return connector.ProviderSet{}, err }
 	enqueue, err := connector.BindEnqueueDelivery(SendNotice, func(context.Context, connector.TypedRequest[Request]) (connector.DeliveryResult, error) {
 		return connector.DeliveryResult{ResponseRef: "delivery-1"}, nil
 	})
-	if err != nil { return connector.ExtensionSet{}, err }
+	if err != nil { return connector.ProviderSet{}, err }
 	start, err := connector.BindStartOperationDelivery(SyncMember, func(context.Context, connector.TypedRequest[Request]) (connector.DeliveryResult, error) {
 		return connector.DeliveryResult{ResponseRef: "remote-operation-1"}, nil
 	})
-	if err != nil { return connector.ExtensionSet{}, err }
+	if err != nil { return connector.ProviderSet{}, err }
 	provider, err := connector.NewProvider(connector.ProviderSchema{
 		ConnectorKey: "member_center", ProviderKey: "acme", ProviderRevision: "provider-v1",
 		ConfigFields: []connector.ConfigField{{Key: "region", Name: "Region", Type: connector.ConfigFieldSelect, Default: []byte(` + "`\"us\"`" + `), Validation: connector.ConfigValidation{Options: []string{"us", "eu"}}}},
 		SecretFields: []connector.SecretField{{Key: "api_key", Name: "API key", Required: true, CredentialKind: connector.SecretCredentialAPIKey, MaterialFormat: connector.SecretMaterialOpaque, RotationPolicy: connector.SecretRotationManual, ExpiryPolicy: connector.SecretExpiryOptional, TestRequirement: connector.SecretTestWhenBound}},
 	}, call, enqueue, start)
-	if err != nil { return connector.ExtensionSet{}, err }
-	return connector.ExtensionSet{Providers: []connector.Adapter{ProjectProvider{Adapter: provider}}}, nil
+	if err != nil { return connector.ProviderSet{}, err }
+	return connector.ProviderSet{Providers: []connector.Adapter{ProjectProvider{Adapter: provider}}}, nil
 }
 `)
 	if err := os.WriteFile(filepath.Join(externalRoot, "connector.go"), source, 0o600); err != nil {

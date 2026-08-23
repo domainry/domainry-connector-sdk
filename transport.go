@@ -52,6 +52,6 @@ type SQLResult struct {
 	Truncated    bool     `json:"truncated,omitempty"`
 }
 
-// ExtensionFactory binds project Adapter constructors to the Runtime-owned
+// ProviderSetFactory binds project Adapter constructors to the Runtime-owned
 // Transport before their descriptors enter the frozen Registry.
-type ExtensionFactory func(Transport) (ExtensionSet, error)
+type ProviderSetFactory func(Transport) (ProviderSet, error)

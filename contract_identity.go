@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "52e77dae1a2b09f210a2ee9597fe3bcbecb4ab875336e06a4a18ad3dfbcc90fb"
+const ContractSHA256 = "7c0840aba1388add0ec482254f144349e1ee309b5480f368f9d32a0218903d1d"
 
-const contractSurfaceV1 = `connector-contract-v1
+const contractSurfaceV2 = `connector-contract-v2
 PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
@@ -69,7 +69,7 @@ SecretExpiryPolicy=none,optional,required
 SecretTestRequirement=optional,when_bound
 NewProvider(ProviderSchema,...BoundOperation)(Adapter,error)
 Registry.Register(Adapter)error
-Registry.RegisterExtensionSet(ExtensionSet)error
+Registry.RegisterProviderSet(ProviderSet)error
 RegistryRegistration=ValidatedDescriptorSnapshotAndExactOptionalCapabilitiesIncludingConfigValidator,ConnectionTester,WebhookVerifier,Reconciler
 Registry.Freeze()
 Registry.Provider(string,string)(Adapter,bool)
@@ -78,7 +78,7 @@ Registry.Providers()[]Adapter
 Transport.RoundTripHTTP(context.Context,HTTPRequest)(HTTPResponse,error)
 Transport.ExecuteSQL(context.Context,SQLRequest)(SQLResult,error)
 SQLOperation=ping,query,exec
-ExtensionFactory(Transport)(ExtensionSet,error)
+ProviderSetFactory(Transport)(ProviderSet,error)
 ProjectAdapterConstructor=New*Adapter(Transport)Adapter
 RuntimeSecretResolution=AllReferencesResolvedBeforeAdapterInvocation
 AdapterSecretMaterial=ProviderDescriptorSecretFieldsOnly
@@ -89,11 +89,11 @@ AdapterSecretUpdates=ProviderDescriptorSecretFieldsOnly
 func ComputedContractSHA256() string {
 	structs := []any{
 		Connection{}, Principal{}, CallRequest{}, CallResult{}, ResourceHealthReport{}, TestConnectionRequest{}, TestConnectionResult{}, VerifyWebhookRequest{}, WebhookSecurityEvidence{}, WebhookExternalIdentity{}, WebhookDeliveryReceipt{}, VerifiedWebhook{}, ProviderError{}, IdempotencyContract{}, CompensationContract{}, ReliabilityContract{}, ReconcileRequest{}, ReconcileResult{},
-		DeliveryResult{}, OperationDescriptor{}, FieldLocalization{}, ConfigValidation{}, ConfigField{}, SecretField{}, ProviderSchema{}, ProviderDescriptor{}, ExtensionSet{},
+		DeliveryResult{}, OperationDescriptor{}, FieldLocalization{}, ConfigValidation{}, ConfigField{}, SecretField{}, ProviderSchema{}, ProviderDescriptor{}, ProviderSet{},
 		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{},
 	}
 	var surface strings.Builder
-	surface.WriteString(contractSurfaceV1)
+	surface.WriteString(contractSurfaceV2)
 	for _, value := range structs {
 		current := reflect.TypeOf(value)
 		surface.WriteString(current.Name())

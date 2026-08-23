@@ -15,7 +15,9 @@ var (
 	ErrProviderDuplicate = errors.New("connector provider is already registered")
 )
 
-type ExtensionSet struct {
+// ProviderSet is one explicit batch of Provider Adapters composed by a project
+// before the Runtime validates and freezes its Registry.
+type ProviderSet struct {
 	Providers []Adapter
 }
 
@@ -204,7 +206,7 @@ func (r *Registry) Register(provider Adapter) error {
 	return nil
 }
 
-func (r *Registry) RegisterExtensionSet(set ExtensionSet) error {
+func (r *Registry) RegisterProviderSet(set ProviderSet) error {
 	validated := make(map[string]Adapter, len(set.Providers))
 	for _, provider := range set.Providers {
 		if provider == nil {

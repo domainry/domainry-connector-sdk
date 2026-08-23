@@ -6,15 +6,15 @@ import (
 	"github.com/domainry/domainry-connector-sdk/contracttest"
 )
 
-func TestExtensionsSatisfyContract(t *testing.T) {
-	extensions, err := Extensions(nil)
+func TestProvidersSatisfyContract(t *testing.T) {
+	providers, err := Providers(nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(extensions.Providers) != 1 {
-		t.Fatalf("providers = %d, want 1", len(extensions.Providers))
+	if len(providers.Providers) != 1 {
+		t.Fatalf("providers = %d, want 1", len(providers.Providers))
 	}
-	if err := contracttest.ValidateAdapter(extensions.Providers[0]); err != nil {
+	if err := contracttest.ValidateAdapter(providers.Providers[0]); err != nil {
 		t.Fatal(err)
 	}
 }
