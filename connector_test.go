@@ -564,7 +564,7 @@ func TestProviderRegistryPreservesOnlyCapabilitiesActuallyImplemented(t *testing
 }
 
 func TestContractIdentityIsStable(t *testing.T) {
-	if ContractVersion != "connector-contract-v4" {
+	if ContractVersion != "connector-contract-v5" {
 		t.Fatalf("connector contract version=%q", ContractVersion)
 	}
 	if actual := ComputedContractSHA256(); actual != ContractSHA256 {
@@ -644,6 +644,7 @@ func TestHTTPRequestSecretsAreNotSerialized(t *testing.T) {
 		SecretHeaders: map[string][]string{"Authorization": {"Bearer resolved-secret"}},
 		SecretQuery:   map[string]string{"apiKey": "resolved-secret"},
 		SecretForm:    map[string]string{"refresh_token": "resolved-secret"},
+		SecretJSON:    map[string]string{"api_key": "resolved-secret"},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -651,7 +652,7 @@ func TestHTTPRequestSecretsAreNotSerialized(t *testing.T) {
 	if bytes.Contains(payload, []byte("apiKey")) || bytes.Contains(payload, []byte("Authorization")) || bytes.Contains(payload, []byte("refresh_token")) || bytes.Contains(payload, []byte("resolved-secret")) {
 		t.Fatalf("serialized HTTPRequest leaked secret material: %s", payload)
 	}
-	for _, field := range []string{"SecretHeaders", "SecretQuery", "SecretForm"} {
+	for _, field := range []string{"SecretHeaders", "SecretQuery", "SecretForm", "SecretJSON"} {
 		if _, exists := reflect.TypeOf(HTTPRequest{}).FieldByName(field); !exists {
 			t.Fatalf("HTTPRequest is missing %s", field)
 		}

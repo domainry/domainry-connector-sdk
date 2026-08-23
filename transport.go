@@ -25,7 +25,11 @@ type HTTPRequest struct {
 	// SecretForm contains resolved form fields that Runtime injects into an
 	// application/x-www-form-urlencoded body immediately before dispatch.
 	// Keys must not occur in the public Body.
-	SecretForm       map[string]string `json:"-"`
+	SecretForm map[string]string `json:"-"`
+	// SecretJSON contains resolved string fields that Runtime injects into a
+	// top-level application/json object immediately before dispatch. Keys must
+	// not occur in the public Body.
+	SecretJSON       map[string]string `json:"-"`
 	Body             []byte            `json:"body,omitempty"`
 	MaxResponseBytes int64             `json:"max_response_bytes,omitempty"`
 }

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const ContractVersion = "connector-contract-v4"
+const ContractVersion = "connector-contract-v5"
 
 type OperationMode string
 
