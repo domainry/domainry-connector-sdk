@@ -26,7 +26,14 @@ Both modules depend on this SDK instead.
 make fmt-check
 make test
 make vet
+make boundary
 ```
 
 The module is currently under initial extraction. Public compatibility begins
 only when the first tagged SDK contract is released.
+
+## License
+
+No public license is granted during the extraction phase. A `LICENSE` file
+must be added through an explicit repository policy decision before the first
+public release.

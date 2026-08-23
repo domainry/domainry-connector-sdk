@@ -1,4 +1,4 @@
-.PHONY: test fmt-check vet
+.PHONY: test fmt-check vet boundary
 
 test:
 	go test ./...
@@ -12,3 +12,10 @@ fmt-check:
 
 vet:
 	go vet ./...
+
+boundary:
+	@deps="$$(go list -deps ./...)"; \
+	if printf '%s\n' "$$deps" | grep -Eq '^github\.com/domainry/(domainry-plane|domainry-connectors)(/|$$)'; then \
+		printf 'forbidden module dependency detected\n' >&2; \
+		exit 1; \
+	fi
