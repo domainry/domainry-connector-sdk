@@ -1,4 +1,4 @@
-.PHONY: test fmt-check vet boundary
+.PHONY: test fmt-check vet boundary license-check vulnerability-check release-check
 
 test:
 	go test ./...
@@ -19,3 +19,12 @@ boundary:
 		printf 'forbidden module dependency detected\n' >&2; \
 		exit 1; \
 	fi
+
+license-check:
+	@grep -qx 'MIT License' LICENSE
+	@grep -qx 'Copyright (c) 2026 Domainry' LICENSE
+
+vulnerability-check:
+	GOTOOLCHAIN=go1.26.6 go run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
+
+release-check: fmt-check test vet boundary license-check vulnerability-check
