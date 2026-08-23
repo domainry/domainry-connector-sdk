@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "7f2f6bb06bab4143faf75ebffa76f44cc1f06de6ecdbcfeb88ca6604a5b35274"
+const ContractSHA256 = "c0934e9e6d5ce24f8be0cfe1df1a3bd32bbd818924bf818706943792c04fe33e"
 
-const contractSurfaceV7 = `connector-contract-v7
+const contractSurfaceV8 = `connector-contract-v8
 PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
@@ -86,6 +86,9 @@ SMTPTransport.SendSMTP(context.Context,SMTPRequest)(SMTPResult,error)
 SMTPRequest.SecretPassword=RuntimeInjectedImmediatelyBeforeDispatchAndNeverSerialized
 MQTTTransport.ExecuteMQTT(context.Context,MQTTRequest)(MQTTResult,error)
 MQTTRequest.SecretUsername,SecretPassword,SecretCertificate,SecretPrivateKey=RuntimeInjectedImmediatelyBeforeDispatchAndNeverSerialized
+FilesystemTransport.ExecuteFilesystem(context.Context,FilesystemRequest)(FilesystemResult,error)
+FilesystemOperation=probe,read,write,delete
+FilesystemExecution=RuntimeOwnedRootAndPathValidation,BoundedRead,DurableStagedWrite,Delete
 ProviderSetFactory(Transport)(ProviderSet,error)
 ProjectAdapterConstructor=New*Adapter(Transport)Adapter
 RuntimeSecretResolution=AllReferencesResolvedBeforeAdapterInvocation
@@ -98,10 +101,10 @@ func ComputedContractSHA256() string {
 	structs := []any{
 		Connection{}, Principal{}, CallRequest{}, CallResult{}, ResourceHealthReport{}, TestConnectionRequest{}, TestConnectionResult{}, VerifyWebhookRequest{}, WebhookSecurityEvidence{}, WebhookExternalIdentity{}, WebhookDeliveryReceipt{}, VerifiedWebhook{}, ProviderError{}, IdempotencyContract{}, CompensationContract{}, ReliabilityContract{}, ReconcileRequest{}, ReconcileResult{},
 		DeliveryResult{}, OperationDescriptor{}, FieldLocalization{}, ConfigValidation{}, ConfigField{}, SecretField{}, ProviderSchema{}, ProviderDescriptor{}, ProviderSet{},
-		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{}, SMTPRequest{}, SMTPResult{}, MQTTRequest{}, MQTTResult{},
+		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{}, SMTPRequest{}, SMTPResult{}, MQTTRequest{}, MQTTResult{}, FilesystemRequest{}, FilesystemResult{},
 	}
 	var surface strings.Builder
-	surface.WriteString(contractSurfaceV7)
+	surface.WriteString(contractSurfaceV8)
 	for _, value := range structs {
 		current := reflect.TypeOf(value)
 		surface.WriteString(current.Name())

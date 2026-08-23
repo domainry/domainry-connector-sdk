@@ -69,6 +69,37 @@ type MQTTResult struct {
 	PacketID  uint16 `json:"packet_id,omitempty"`
 }
 
+// FilesystemTransport is an optional Runtime-owned capability for Providers
+// that operate on a configured local filesystem. Runtime owns root and path
+// validation, permissions, bounded reads, durable staged writes, and deletion.
+type FilesystemTransport interface {
+	ExecuteFilesystem(context.Context, FilesystemRequest) (FilesystemResult, error)
+}
+
+type FilesystemOperation string
+
+const (
+	FilesystemOperationProbe  FilesystemOperation = "probe"
+	FilesystemOperationRead   FilesystemOperation = "read"
+	FilesystemOperationWrite  FilesystemOperation = "write"
+	FilesystemOperationDelete FilesystemOperation = "delete"
+)
+
+type FilesystemRequest struct {
+	Root         string              `json:"root"`
+	Path         string              `json:"path,omitempty"`
+	Operation    FilesystemOperation `json:"operation"`
+	Content      []byte              `json:"content,omitempty"`
+	MaxReadBytes int64               `json:"max_read_bytes,omitempty"`
+}
+
+type FilesystemResult struct {
+	Path    string `json:"path,omitempty"`
+	Content []byte `json:"content,omitempty"`
+	Size    int64  `json:"size,omitempty"`
+	Exists  bool   `json:"exists"`
+}
+
 type HTTPRequest struct {
 	Method  string              `json:"method"`
 	URL     string              `json:"url"`
