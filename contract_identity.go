@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "129494b793676175f1d67814fa8be1507034e868ec6b733c36b08020f5a2771e"
+const ContractSHA256 = "e601024f36d4d863a73abc792a2f7a7b488b91ddf2c032e53fbd0702df6373ea"
 
-const contractSurfaceV3 = `connector-contract-v3
+const contractSurfaceV4 = `connector-contract-v4
 PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
@@ -76,7 +76,9 @@ Registry.Provider(string,string)(Adapter,bool)
 Registry.Descriptors()[]ProviderDescriptor
 Registry.Providers()[]Adapter
 Transport.RoundTripHTTP(context.Context,HTTPRequest)(HTTPResponse,error)
+HTTPRequest.SecretHeaders=RuntimeInjectedImmediatelyBeforeDispatchAndNeverSerialized
 HTTPRequest.SecretQuery=RuntimeInjectedImmediatelyBeforeDispatchAndNeverSerialized
+HTTPRequest.SecretForm=RuntimeInjectedIntoURLEncodedBodyImmediatelyBeforeDispatchAndNeverSerialized
 Transport.ExecuteSQL(context.Context,SQLRequest)(SQLResult,error)
 SQLOperation=ping,query,exec
 ProviderSetFactory(Transport)(ProviderSet,error)
@@ -94,7 +96,7 @@ func ComputedContractSHA256() string {
 		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{},
 	}
 	var surface strings.Builder
-	surface.WriteString(contractSurfaceV3)
+	surface.WriteString(contractSurfaceV4)
 	for _, value := range structs {
 		current := reflect.TypeOf(value)
 		surface.WriteString(current.Name())

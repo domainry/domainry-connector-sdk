@@ -16,9 +16,16 @@ type HTTPRequest struct {
 	Method  string              `json:"method"`
 	URL     string              `json:"url"`
 	Headers map[string][]string `json:"headers,omitempty"`
+	// SecretHeaders contains resolved secret-bearing header values that Runtime
+	// injects immediately before dispatch. Keys must not occur in Headers.
+	SecretHeaders map[string][]string `json:"-"`
 	// SecretQuery is resolved secret material that Runtime injects immediately
 	// before dispatch. It is deliberately excluded from serialization.
-	SecretQuery      map[string]string `json:"-"`
+	SecretQuery map[string]string `json:"-"`
+	// SecretForm contains resolved form fields that Runtime injects into an
+	// application/x-www-form-urlencoded body immediately before dispatch.
+	// Keys must not occur in the public Body.
+	SecretForm       map[string]string `json:"-"`
 	Body             []byte            `json:"body,omitempty"`
 	MaxResponseBytes int64             `json:"max_response_bytes,omitempty"`
 }
