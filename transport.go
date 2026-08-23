@@ -12,6 +12,34 @@ type Transport interface {
 	ExecuteSQL(context.Context, SQLRequest) (SQLResult, error)
 }
 
+// SMTPTransport is an optional Runtime-owned capability for Providers that
+// deliver RFC 5322 messages. Keeping it separate preserves compatibility for
+// transports that only support HTTP and SQL.
+type SMTPTransport interface {
+	SendSMTP(context.Context, SMTPRequest) (SMTPResult, error)
+}
+
+type SMTPRequest struct {
+	Host           string        `json:"host"`
+	Port           int           `json:"port"`
+	ImplicitTLS    bool          `json:"implicit_tls,omitempty"`
+	StartTLS       bool          `json:"start_tls,omitempty"`
+	TLSServerName  string        `json:"tls_server_name,omitempty"`
+	TLSCAPEM       string        `json:"tls_ca_pem,omitempty"`
+	Username       string        `json:"username,omitempty"`
+	SecretPassword string        `json:"-"`
+	EnvelopeFrom   string        `json:"envelope_from,omitempty"`
+	Recipients     []string      `json:"recipients,omitempty"`
+	Message        []byte        `json:"message,omitempty"`
+	ProbeOnly      bool          `json:"probe_only,omitempty"`
+	Timeout        time.Duration `json:"timeout,omitempty"`
+}
+
+type SMTPResult struct {
+	Connected bool `json:"connected"`
+	Accepted  bool `json:"accepted"`
+}
+
 type HTTPRequest struct {
 	Method  string              `json:"method"`
 	URL     string              `json:"url"`

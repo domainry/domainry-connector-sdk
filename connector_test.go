@@ -659,6 +659,20 @@ func TestHTTPRequestSecretsAreNotSerialized(t *testing.T) {
 	}
 }
 
+func TestSMTPPasswordIsNotSerialized(t *testing.T) {
+	payload, err := json.Marshal(SMTPRequest{Host: "smtp.example.test", Username: "user", SecretPassword: "resolved-secret"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Contains(payload, []byte("resolved-secret")) || bytes.Contains(payload, []byte("SecretPassword")) {
+		t.Fatalf("serialized SMTPRequest leaked secret material: %s", payload)
+	}
+	transport := reflect.TypeOf((*SMTPTransport)(nil)).Elem()
+	if transport.NumMethod() != 1 {
+		t.Fatalf("SMTPTransport methods=%d", transport.NumMethod())
+	}
+}
+
 func TestAdapterAndCallEnvelopeExposeTheStablePublicBoundary(t *testing.T) {
 	adapter := reflect.TypeOf((*Adapter)(nil)).Elem()
 	if adapter.Name() != "Adapter" || adapter.NumMethod() != 2 {

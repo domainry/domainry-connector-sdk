@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "ed0e5dc7db5c8d89b3d6d8f7689ade7fde1afb0ad7722431c275430be7bc6499"
+const ContractSHA256 = "916f09dda181c978735eadf1df35cef251a07fe4556b033e207181ba9ce319da"
 
-const contractSurfaceV5 = `connector-contract-v5
+const contractSurfaceV5 = `connector-contract-v6
 PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
@@ -82,6 +82,8 @@ HTTPRequest.SecretForm=RuntimeInjectedIntoURLEncodedBodyImmediatelyBeforeDispatc
 HTTPRequest.SecretJSON=RuntimeInjectedIntoTopLevelJSONObjectImmediatelyBeforeDispatchAndNeverSerialized
 Transport.ExecuteSQL(context.Context,SQLRequest)(SQLResult,error)
 SQLOperation=ping,query,exec
+SMTPTransport.SendSMTP(context.Context,SMTPRequest)(SMTPResult,error)
+SMTPRequest.SecretPassword=RuntimeInjectedImmediatelyBeforeDispatchAndNeverSerialized
 ProviderSetFactory(Transport)(ProviderSet,error)
 ProjectAdapterConstructor=New*Adapter(Transport)Adapter
 RuntimeSecretResolution=AllReferencesResolvedBeforeAdapterInvocation
@@ -94,7 +96,7 @@ func ComputedContractSHA256() string {
 	structs := []any{
 		Connection{}, Principal{}, CallRequest{}, CallResult{}, ResourceHealthReport{}, TestConnectionRequest{}, TestConnectionResult{}, VerifyWebhookRequest{}, WebhookSecurityEvidence{}, WebhookExternalIdentity{}, WebhookDeliveryReceipt{}, VerifiedWebhook{}, ProviderError{}, IdempotencyContract{}, CompensationContract{}, ReliabilityContract{}, ReconcileRequest{}, ReconcileResult{},
 		DeliveryResult{}, OperationDescriptor{}, FieldLocalization{}, ConfigValidation{}, ConfigField{}, SecretField{}, ProviderSchema{}, ProviderDescriptor{}, ProviderSet{},
-		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{},
+		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{}, SMTPRequest{}, SMTPResult{},
 	}
 	var surface strings.Builder
 	surface.WriteString(contractSurfaceV5)
