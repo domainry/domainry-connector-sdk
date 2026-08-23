@@ -564,7 +564,7 @@ func TestProviderRegistryPreservesOnlyCapabilitiesActuallyImplemented(t *testing
 }
 
 func TestContractIdentityIsStable(t *testing.T) {
-	if ContractVersion != "connector-contract-v5" {
+	if ContractVersion != "connector-contract-v7" {
 		t.Fatalf("connector contract version=%q", ContractVersion)
 	}
 	if actual := ComputedContractSHA256(); actual != ContractSHA256 {
@@ -670,6 +670,22 @@ func TestSMTPPasswordIsNotSerialized(t *testing.T) {
 	transport := reflect.TypeOf((*SMTPTransport)(nil)).Elem()
 	if transport.NumMethod() != 1 {
 		t.Fatalf("SMTPTransport methods=%d", transport.NumMethod())
+	}
+}
+
+func TestMQTTSecretsAreNotSerialized(t *testing.T) {
+	payload, err := json.Marshal(MQTTRequest{BrokerURL: "mqtts://broker.example", Topic: "devices/1", SecretUsername: "user-secret", SecretPassword: "password-secret", SecretCertificate: "certificate-secret", SecretPrivateKey: "private-key-secret"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, secret := range []string{"user-secret", "password-secret", "certificate-secret", "private-key-secret"} {
+		if bytes.Contains(payload, []byte(secret)) {
+			t.Fatalf("serialized MQTTRequest leaked secret material: %s", payload)
+		}
+	}
+	transport := reflect.TypeOf((*MQTTTransport)(nil)).Elem()
+	if transport.NumMethod() != 1 || transport.Method(0).Name != "ExecuteMQTT" {
+		t.Fatalf("MQTTTransport=%v", transport)
 	}
 }
 

@@ -40,6 +40,35 @@ type SMTPResult struct {
 	Accepted  bool `json:"accepted"`
 }
 
+// MQTTTransport is an optional Runtime-owned capability for Providers that
+// connect to MQTT brokers. Runtime owns sockets, TLS, packet framing,
+// deadlines, QoS acknowledgement, and secret injection.
+type MQTTTransport interface {
+	ExecuteMQTT(context.Context, MQTTRequest) (MQTTResult, error)
+}
+
+type MQTTRequest struct {
+	BrokerURL         string        `json:"broker_url"`
+	ClientID          string        `json:"client_id,omitempty"`
+	Topic             string        `json:"topic,omitempty"`
+	Payload           []byte        `json:"payload,omitempty"`
+	QoS               byte          `json:"qos,omitempty"`
+	ProbeOnly         bool          `json:"probe_only,omitempty"`
+	Timeout           time.Duration `json:"timeout,omitempty"`
+	TLSServerName     string        `json:"tls_server_name,omitempty"`
+	TLSCAPEM          string        `json:"tls_ca_pem,omitempty"`
+	SecretUsername    string        `json:"-"`
+	SecretPassword    string        `json:"-"`
+	SecretCertificate string        `json:"-"`
+	SecretPrivateKey  string        `json:"-"`
+}
+
+type MQTTResult struct {
+	Connected bool   `json:"connected"`
+	Accepted  bool   `json:"accepted,omitempty"`
+	PacketID  uint16 `json:"packet_id,omitempty"`
+}
+
 type HTTPRequest struct {
 	Method  string              `json:"method"`
 	URL     string              `json:"url"`

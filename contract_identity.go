@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "916f09dda181c978735eadf1df35cef251a07fe4556b033e207181ba9ce319da"
+const ContractSHA256 = "7f2f6bb06bab4143faf75ebffa76f44cc1f06de6ecdbcfeb88ca6604a5b35274"
 
-const contractSurfaceV5 = `connector-contract-v6
+const contractSurfaceV7 = `connector-contract-v7
 PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
@@ -84,6 +84,8 @@ Transport.ExecuteSQL(context.Context,SQLRequest)(SQLResult,error)
 SQLOperation=ping,query,exec
 SMTPTransport.SendSMTP(context.Context,SMTPRequest)(SMTPResult,error)
 SMTPRequest.SecretPassword=RuntimeInjectedImmediatelyBeforeDispatchAndNeverSerialized
+MQTTTransport.ExecuteMQTT(context.Context,MQTTRequest)(MQTTResult,error)
+MQTTRequest.SecretUsername,SecretPassword,SecretCertificate,SecretPrivateKey=RuntimeInjectedImmediatelyBeforeDispatchAndNeverSerialized
 ProviderSetFactory(Transport)(ProviderSet,error)
 ProjectAdapterConstructor=New*Adapter(Transport)Adapter
 RuntimeSecretResolution=AllReferencesResolvedBeforeAdapterInvocation
@@ -96,10 +98,10 @@ func ComputedContractSHA256() string {
 	structs := []any{
 		Connection{}, Principal{}, CallRequest{}, CallResult{}, ResourceHealthReport{}, TestConnectionRequest{}, TestConnectionResult{}, VerifyWebhookRequest{}, WebhookSecurityEvidence{}, WebhookExternalIdentity{}, WebhookDeliveryReceipt{}, VerifiedWebhook{}, ProviderError{}, IdempotencyContract{}, CompensationContract{}, ReliabilityContract{}, ReconcileRequest{}, ReconcileResult{},
 		DeliveryResult{}, OperationDescriptor{}, FieldLocalization{}, ConfigValidation{}, ConfigField{}, SecretField{}, ProviderSchema{}, ProviderDescriptor{}, ProviderSet{},
-		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{}, SMTPRequest{}, SMTPResult{},
+		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{}, SMTPRequest{}, SMTPResult{}, MQTTRequest{}, MQTTResult{},
 	}
 	var surface strings.Builder
-	surface.WriteString(contractSurfaceV5)
+	surface.WriteString(contractSurfaceV7)
 	for _, value := range structs {
 		current := reflect.TypeOf(value)
 		surface.WriteString(current.Name())
