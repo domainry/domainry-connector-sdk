@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "8d3662131e497098735d876e81b96cf4ac9146acd15b74a92fcc9bcfd2ae7504"
+const ContractSHA256 = "46b776e062af85c4b6d39f6d8bfaab08800454a6ab52a1077aaa3eda87f2fdf6"
 
-const contractSurfaceV9 = `connector-contract-v9
+const contractSurfaceV10 = `connector-contract-v10
 PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
@@ -52,6 +52,18 @@ ReconciliationOutcome=succeeded,failed,pending,not_found,unknown
 Reconciler.Reconcile(context.Context,ReconcileRequest)(ReconcileResult,error)
 ReconcileRequest.Validate()error
 ReconcileResult.Validate()error
+BackgroundProcessor.BackgroundTasks(Connection)[]BackgroundTaskDescriptor
+BackgroundProcessor.ProcessBackground(context.Context,BackgroundRequest)(BackgroundResult,error)
+BackgroundCapabilityProvider.BackgroundProcessor()(BackgroundProcessor,bool)
+BackgroundTaskDescriptor.Validate()error
+BackgroundRequest.Validate()error
+BackgroundEvent.Validate()error
+BackgroundCommit.Validate()error
+BackgroundResult.Validate()error
+BackgroundCleanupProcessor.CleanupBackground(context.Context,Connection,map[string]string,time.Time,Principal)(map[string]string,error)
+BackgroundCleanupCapabilityProvider.BackgroundCleanupProcessor()(BackgroundCleanupProcessor,bool)
+BackgroundExecution=ProviderOwnedStateSemanticsAndRuntimeOwnedPersistenceLeaseSecretsTransportAudit
+BackgroundCommit=RuntimeExecutesOnlyAfterDurableStateAndEventCommit
 CompensationMode=none,explicit,saga
 CompensationTarget=DistinctTerminalIdempotentProviderReconcilableEnqueueWriteOperation
 CompensationExecution=Adapter.CallViaCommittedOutbox
@@ -70,7 +82,7 @@ SecretTestRequirement=optional,when_bound
 NewProvider(ProviderSchema,...BoundOperation)(Adapter,error)
 Registry.Register(Adapter)error
 Registry.RegisterProviderSet(ProviderSet)error
-RegistryRegistration=ValidatedDescriptorSnapshotAndExactOptionalCapabilitiesIncludingConfigValidator,ConnectionTester,WebhookVerifier,Reconciler
+RegistryRegistration=ValidatedDescriptorSnapshotAndExactOptionalCapabilitiesIncludingConfigValidator,ConnectionTester,WebhookVerifier,Reconciler,BackgroundProcessor,BackgroundCleanupProcessor
 Registry.Freeze()
 Registry.Provider(string,string)(Adapter,bool)
 Registry.Descriptors()[]ProviderDescriptor
@@ -104,12 +116,12 @@ AdapterSecretUpdates=ProviderDescriptorSecretFieldsOnly
 
 func ComputedContractSHA256() string {
 	structs := []any{
-		Connection{}, Principal{}, CallRequest{}, CallResult{}, ResourceHealthReport{}, TestConnectionRequest{}, TestConnectionResult{}, VerifyWebhookRequest{}, WebhookSecurityEvidence{}, WebhookExternalIdentity{}, WebhookDeliveryReceipt{}, VerifiedWebhook{}, ProviderError{}, IdempotencyContract{}, CompensationContract{}, ReliabilityContract{}, ReconcileRequest{}, ReconcileResult{},
+		Connection{}, Principal{}, CallRequest{}, CallResult{}, ResourceHealthReport{}, TestConnectionRequest{}, TestConnectionResult{}, VerifyWebhookRequest{}, WebhookSecurityEvidence{}, WebhookExternalIdentity{}, WebhookDeliveryReceipt{}, VerifiedWebhook{}, ProviderError{}, IdempotencyContract{}, CompensationContract{}, ReliabilityContract{}, ReconcileRequest{}, ReconcileResult{}, BackgroundTaskDescriptor{}, BackgroundRequest{}, BackgroundEvent{}, BackgroundCommit{}, BackgroundResult{},
 		DeliveryResult{}, OperationDescriptor{}, FieldLocalization{}, ConfigValidation{}, ConfigField{}, SecretField{}, ProviderSchema{}, ProviderDescriptor{}, ProviderSet{},
 		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{}, SMTPRequest{}, SMTPResult{}, MQTTRequest{}, MQTTResult{}, FilesystemRequest{}, FilesystemResult{}, ProcessRequest{},
 	}
 	var surface strings.Builder
-	surface.WriteString(contractSurfaceV9)
+	surface.WriteString(contractSurfaceV10)
 	for _, value := range structs {
 		current := reflect.TypeOf(value)
 		surface.WriteString(current.Name())

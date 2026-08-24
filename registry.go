@@ -32,6 +32,16 @@ type frozenAdapter struct {
 	delegate   Adapter
 }
 
+func (a *frozenAdapter) BackgroundProcessor() (BackgroundProcessor, bool) {
+	processor, ok := a.delegate.(BackgroundProcessor)
+	return processor, ok
+}
+
+func (a *frozenAdapter) BackgroundCleanupProcessor() (BackgroundCleanupProcessor, bool) {
+	processor, ok := a.delegate.(BackgroundCleanupProcessor)
+	return processor, ok
+}
+
 type frozenConfigValidator struct {
 	*frozenAdapter
 	ConfigValidator
