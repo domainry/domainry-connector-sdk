@@ -20,6 +20,14 @@ The SDK must not import either of these modules:
 
 Both modules depend on this SDK instead.
 
+## Package layout
+
+- The root package owns provider, gateway, adapter, transport, reliability, and background-processing contracts.
+- `contracttest` contains reusable implementation conformance tests.
+- `examples` contains public integration examples.
+
+The SDK intentionally has no `persistence` or `modulehost` package: Runtime owns transport and connection infrastructure, while concrete providers own their implementations.
+
 ## Development
 
 ```sh
