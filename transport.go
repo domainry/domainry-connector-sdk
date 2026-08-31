@@ -6,13 +6,13 @@ import (
 )
 
 // Transport is the only outbound I/O capability supplied to project-owned
-// Connector Adapters. Runtime owns the concrete clients, pools and limits.
+// Connector Adapters. The deployment host owns the concrete clients, pools and limits.
 type Transport interface {
 	RoundTripHTTP(context.Context, HTTPRequest) (HTTPResponse, error)
 	ExecuteSQL(context.Context, SQLRequest) (SQLResult, error)
 }
 
-// SMTPTransport is an optional Runtime-owned capability for Providers that
+// SMTPTransport is an optional host-owned capability for Providers that
 // deliver RFC 5322 messages. Keeping it separate preserves compatibility for
 // transports that only support HTTP and SQL.
 type SMTPTransport interface {
@@ -40,8 +40,8 @@ type SMTPResult struct {
 	Accepted  bool `json:"accepted"`
 }
 
-// MQTTTransport is an optional Runtime-owned capability for Providers that
-// connect to MQTT brokers. Runtime owns sockets, TLS, packet framing,
+// MQTTTransport is an optional host-owned capability for Providers that
+// connect to MQTT brokers. The host owns sockets, TLS, packet framing,
 // deadlines, QoS acknowledgement, and secret injection.
 type MQTTTransport interface {
 	ExecuteMQTT(context.Context, MQTTRequest) (MQTTResult, error)
@@ -69,8 +69,8 @@ type MQTTResult struct {
 	PacketID  uint16 `json:"packet_id,omitempty"`
 }
 
-// FilesystemTransport is an optional Runtime-owned capability for Providers
-// that operate on a configured local filesystem. Runtime owns root and path
+// FilesystemTransport is an optional host-owned capability for Providers
+// that operate on a configured local filesystem. The host owns root and path
 // validation, permissions, bounded reads, durable staged writes, and deletion.
 type FilesystemTransport interface {
 	ExecuteFilesystem(context.Context, FilesystemRequest) (FilesystemResult, error)
@@ -100,8 +100,8 @@ type FilesystemResult struct {
 	Exists  bool   `json:"exists"`
 }
 
-// ProcessTransport is an optional Runtime-owned capability for Providers that
-// speak a line-delimited protocol over a governed child process. Runtime owns
+// ProcessTransport is an optional host-owned capability for Providers that
+// speak a line-delimited protocol over a governed child process. The host owns
 // executable authorization, process creation, stdio, limits, and termination.
 type ProcessTransport interface {
 	StartProcess(context.Context, ProcessRequest) (ProcessSession, error)
@@ -125,17 +125,17 @@ type HTTPRequest struct {
 	Method  string              `json:"method"`
 	URL     string              `json:"url"`
 	Headers map[string][]string `json:"headers,omitempty"`
-	// SecretHeaders contains resolved secret-bearing header values that Runtime
+	// SecretHeaders contains resolved secret-bearing header values that Integration
 	// injects immediately before dispatch. Keys must not occur in Headers.
 	SecretHeaders map[string][]string `json:"-"`
-	// SecretQuery is resolved secret material that Runtime injects immediately
+	// SecretQuery is resolved secret material that Integration injects immediately
 	// before dispatch. It is deliberately excluded from serialization.
 	SecretQuery map[string]string `json:"-"`
-	// SecretForm contains resolved form fields that Runtime injects into an
+	// SecretForm contains resolved form fields that Integration injects into an
 	// application/x-www-form-urlencoded body immediately before dispatch.
 	// Keys must not occur in the public Body.
 	SecretForm map[string]string `json:"-"`
-	// SecretJSON contains resolved string fields that Runtime injects into a
+	// SecretJSON contains resolved string fields that Integration injects into a
 	// top-level application/json object immediately before dispatch. Keys must
 	// not occur in the public Body.
 	SecretJSON       map[string]string `json:"-"`
@@ -175,6 +175,6 @@ type SQLResult struct {
 	Truncated    bool     `json:"truncated,omitempty"`
 }
 
-// ProviderSetFactory binds project Adapter constructors to the Runtime-owned
+// ProviderSetFactory binds project Adapter constructors to the host-owned
 // Transport before their descriptors enter the frozen Registry.
 type ProviderSetFactory func(Transport) (ProviderSet, error)

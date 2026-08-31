@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// BackgroundTaskDescriptor declares one provider-owned durable task. Runtime
+// BackgroundTaskDescriptor declares one provider-owned durable task. Integration
 // owns scheduling, leases, persistence, secrets, transports, and audit; the
 // provider owns the state payload and transition semantics.
 type BackgroundTaskDescriptor struct {
@@ -27,7 +27,7 @@ func (d BackgroundTaskDescriptor) Validate() error {
 }
 
 // BackgroundRequest is a single fenced transition request. State is opaque to
-// Runtime and must contain exactly one JSON value when non-empty.
+// Integration and must contain exactly one JSON value when non-empty.
 type BackgroundRequest struct {
 	TaskKey       string                     `json:"task_key"`
 	StateVersion  int                        `json:"state_version"`
@@ -53,12 +53,12 @@ func (r BackgroundRequest) Validate() error {
 		return fmt.Errorf("connector background request state must contain one JSON value")
 	}
 	if r.Now.IsZero() {
-		return fmt.Errorf("connector background request requires Runtime time")
+		return fmt.Errorf("connector background request requires host time")
 	}
 	return nil
 }
 
-// BackgroundEvent is provider-normalized input that Runtime must durably
+// BackgroundEvent is provider-normalized input that Integration must durably
 // accept before executing any returned Commit operation.
 type BackgroundEvent struct {
 	ExternalID string          `json:"external_id"`
@@ -76,7 +76,7 @@ func (e BackgroundEvent) Validate() error {
 	return nil
 }
 
-// BackgroundCommit is a provider operation that Runtime executes only after
+// BackgroundCommit is a provider operation that Integration executes only after
 // the state transition and events are durably committed. It is used for
 // acknowledgements and other post-commit provider effects.
 type BackgroundCommit struct {
@@ -140,7 +140,7 @@ type BackgroundCapabilityProvider interface {
 }
 
 // BackgroundCleanupProcessor lets a provider tear down remote resources before
-// Runtime deletes a connection. Runtime still resolves and persists secrets.
+// Integration deletes a connection. Integration still resolves and persists secrets.
 type BackgroundCleanupProcessor interface {
 	CleanupBackground(context.Context, Connection, map[string]string, time.Time, Principal) (map[string]string, error)
 }

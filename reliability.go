@@ -194,7 +194,7 @@ func errorsForReconcileResult(outcome ReconciliationOutcome) error {
 	return fmt.Errorf("connector reconciliation result for %q has incompatible fields", outcome)
 }
 
-// Reconciler is optional and read-only. Runtime invokes it only for an
+// Reconciler is optional and read-only. Integration invokes it only for an
 // operation whose ReliabilityContract declares provider_lookup.
 type Reconciler interface {
 	Reconcile(context.Context, ReconcileRequest) (ReconcileResult, error)

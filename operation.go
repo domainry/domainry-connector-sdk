@@ -77,7 +77,7 @@ func (o EnqueueOperation[I]) Descriptor() OperationDescriptor {
 }
 
 // StartOperation describes asynchronous delivery that starts a long-running
-// external operation. Runtime owns the local durable operation identity.
+// external operation. Integration owns the local durable operation identity.
 type StartOperation[I any] struct {
 	ConnectorKey   string
 	ProviderKey    string

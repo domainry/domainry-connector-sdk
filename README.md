@@ -5,11 +5,13 @@ official Domainry Connectors, reviewed third-party Connectors, and
 customer-private Connectors.
 
 The SDK defines Provider descriptors, operations, reliability semantics,
-Runtime-owned transports, Provider factories, webhook verification,
+host-supplied transports, Provider factories, webhook verification,
 connection testing, reconciliation, error classification, and contract-test
-helpers. It does not implement Runtime persistence, authorization, audit,
+helpers. It does not implement Integration persistence, authorization, audit,
 secret storage, scheduling, Admin surfaces, Builder behavior, or concrete
-Providers.
+Providers. Connector definitions and implementations live in
+`domainry-connectors`; `domainry-integration` owns their configured runtime
+state and execution.
 
 ## Dependency boundary
 
@@ -26,7 +28,9 @@ Both modules depend on this SDK instead.
 - `contracttest` contains reusable implementation conformance tests.
 - `examples` contains public integration examples.
 
-The SDK intentionally has no `persistence` or `modulehost` package: Runtime owns transport and connection infrastructure, while concrete providers own their implementations.
+The SDK intentionally has no `persistence` or `modulehost` package: the host
+supplies governed transport capabilities, Integration owns connection and
+execution infrastructure, and concrete Connectors own Provider implementations.
 
 ## Development
 
