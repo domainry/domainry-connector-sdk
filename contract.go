@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const ContractVersion = "connector-contract-v10"
+const ContractVersion = "connector-contract-v12"
 
 type OperationMode string
 
@@ -35,7 +35,7 @@ type Connection struct {
 type Principal struct {
 	UserID          string `json:"user_id,omitempty"`
 	RoleKey         string `json:"role_key,omitempty"`
-	DepartmentID    string `json:"department_id,omitempty"`
+	OrgID           string `json:"org_id,omitempty"`
 	RequestID       string `json:"request_id,omitempty"`
 	CorrelationID   string `json:"correlation_id,omitempty"`
 	CausationID     string `json:"causation_id,omitempty"`
