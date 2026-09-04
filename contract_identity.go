@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "9b4ab932cb52396a4901938c70bda77feb3564e8686b6b70e72e973e169964e3"
+const ContractSHA256 = "74f94a917680e0d87a05b9a9c34a3142405270b5ab0ac4effb2067042b41ba66"
 
-const contractSurfaceV10 = `connector-contract-v12
+const contractMaterial = `connector-contract-v13
 PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
@@ -120,25 +120,25 @@ func ComputedContractSHA256() string {
 		DeliveryResult{}, OperationDescriptor{}, FieldLocalization{}, ConfigValidation{}, ConfigField{}, SecretField{}, ProviderSchema{}, ProviderDescriptor{}, ProviderSet{},
 		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{}, SMTPRequest{}, SMTPResult{}, MQTTRequest{}, MQTTResult{}, FilesystemRequest{}, FilesystemResult{}, ProcessRequest{},
 	}
-	var surface strings.Builder
-	surface.WriteString(contractSurfaceV10)
+	var material strings.Builder
+	material.WriteString(contractMaterial)
 	for _, value := range structs {
 		current := reflect.TypeOf(value)
-		surface.WriteString(current.Name())
-		surface.WriteByte('{')
+		material.WriteString(current.Name())
+		material.WriteByte('{')
 		for index := 0; index < current.NumField(); index++ {
 			if index > 0 {
-				surface.WriteByte(',')
+				material.WriteByte(',')
 			}
 			field := current.Field(index)
-			surface.WriteString(field.Name)
-			surface.WriteByte(':')
-			surface.WriteString(field.Type.String())
-			surface.WriteByte(':')
-			surface.WriteString(field.Tag.Get("json"))
+			material.WriteString(field.Name)
+			material.WriteByte(':')
+			material.WriteString(field.Type.String())
+			material.WriteByte(':')
+			material.WriteString(field.Tag.Get("json"))
 		}
-		surface.WriteString("}\n")
+		material.WriteString("}\n")
 	}
-	sum := sha256.Sum256([]byte(surface.String()))
+	sum := sha256.Sum256([]byte(material.String()))
 	return hex.EncodeToString(sum[:])
 }
