@@ -26,7 +26,26 @@ import (
 	"context"
 
 	"github.com/domainry/domainry-connector-sdk"
+	"github.com/domainry/domainry-connector-sdk/calendar"
+	"github.com/domainry/domainry-connector-sdk/calendarwrite"
+	"github.com/domainry/domainry-connector-sdk/mail"
+	"github.com/domainry/domainry-connector-sdk/mailwrite"
+ "github.com/domainry/domainry-connector-sdk/web"
 )
+
+var CalendarLookup = connector.CallOperation[calendar.EventsRequest, calendar.EventsPage]{ConnectorKey:"private", ProviderKey:"calendar", Key:calendar.EventsOperationKey, ContractSHA256:calendar.OperationSHA256(calendar.EventsOperationKey)}
+var _ = calendar.ResolveAvailability
+var CalendarCreate = connector.CallOperation[calendarwrite.CreateRequest, calendarwrite.Result]{ConnectorKey:"private", ProviderKey:"calendar", Key:calendarwrite.CreateOperationKey, ContractSHA256:calendarwrite.OperationSHA256(calendarwrite.CreateOperationKey)}
+var CalendarUpdate = connector.CallOperation[calendarwrite.UpdateRequest, calendarwrite.Result]{ConnectorKey:"private", ProviderKey:"calendar", Key:calendarwrite.UpdateOperationKey, ContractSHA256:calendarwrite.OperationSHA256(calendarwrite.UpdateOperationKey)}
+var _ = calendarwrite.UpdateRequest.ValidateAgainst
+var MailLookup = connector.CallOperation[mail.ReadRequest, mail.Message]{ConnectorKey:"private", ProviderKey:"mail", Key:mail.ReadOperationKey, ContractSHA256:mail.OperationSHA256(mail.ReadOperationKey)}
+var _ = mail.MessagesPage.Validate
+var MailSend = connector.CallOperation[mailwrite.SendRequest, mailwrite.Result]{ConnectorKey:"private", ProviderKey:"mail", Key:mailwrite.SendOperationKey, ContractSHA256:mailwrite.OperationSHA256(mailwrite.SendOperationKey)}
+var MailReply = connector.CallOperation[mailwrite.ReplyRequest, mailwrite.Result]{ConnectorKey:"private", ProviderKey:"mail", Key:mailwrite.ReplyOperationKey, ContractSHA256:mailwrite.OperationSHA256(mailwrite.ReplyOperationKey)}
+var _ = mailwrite.ReplyRequest.ValidateAgainst
+var WebLookup = connector.CallOperation[web.FetchRequest, web.Page]{ConnectorKey:"private", ProviderKey:"web", Key:web.FetchOperationKey, ContractSHA256:web.OperationSHA256(web.FetchOperationKey)}
+var _ = web.NormalizeURL
+var _ = web.SearchResult.Validate
 
 type Request struct { MemberID string ` + "`json:\"member_id\"`" + ` }
 type Response struct { Name string ` + "`json:\"name\"`" + ` }
@@ -46,6 +65,15 @@ func (ProjectProvider) VerifyWebhook(context.Context, connector.VerifyWebhookReq
 func (ProjectProvider) Reconcile(context.Context, connector.ReconcileRequest) (connector.ReconcileResult, error) {
 	return connector.ReconcileResult{Outcome: connector.ReconciliationSucceeded}, nil
 }
+
+func (ProjectProvider) AuthorizationURL(connector.OAuthAuthorizationRequest) (string, error) { return "https://example.test/authorize", nil }
+func (ProjectProvider) ExchangeAuthorizationCode(context.Context, connector.OAuthCodeExchangeRequest) (connector.OAuthTokens, error) { return connector.OAuthTokens{AccessToken:"private-token", TokenType:"Bearer"}, nil }
+func (ProjectProvider) OAuthConnectionTestScopes() ([][]string, bool) { return [][]string{{"profile"}}, true }
+var _ connector.OAuthConnectionTestScopeProvider = ProjectProvider{}
+func (ProjectProvider) OAuthOperationScopes(key string) ([][]string, bool) { return [][]string{{"records.read"}}, key == "get_member" }
+var _ connector.OAuthOperationScopeProvider = ProjectProvider{}
+var _ = connector.ResolveOAuthOperationScopes
+var _ connector.OAuthAuthorizer = ProjectProvider{}
 
 var _ connector.ConfigValidator = ProjectProvider{}
 var _ connector.ConnectionTester = ProjectProvider{}

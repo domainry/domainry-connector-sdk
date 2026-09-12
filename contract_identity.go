@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "74f94a917680e0d87a05b9a9c34a3142405270b5ab0ac4effb2067042b41ba66"
+const ContractSHA256 = "664cb625e96fed3fcfd88c6b25e0087c63aa18e22dd2c960ab9d858b85941fee"
 
-const contractMaterial = `connector-contract-v13
+const contractMaterial = `connector-contract-v16
 PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
@@ -29,6 +29,19 @@ Adapter.Call(context.Context,CallRequest)(CallResult,error)
 ConfigValidator.ValidateConfig(Connection)error
 ConnectionTester.TestConnection(context.Context,TestConnectionRequest)(TestConnectionResult,error)
 WebhookVerifier.VerifyWebhook(context.Context,VerifyWebhookRequest)(VerifiedWebhook,error)
+OAuthAuthorizer.AuthorizationURL(OAuthAuthorizationRequest)(string,error)
+OAuthAuthorizer.ExchangeAuthorizationCode(context.Context,OAuthCodeExchangeRequest)(OAuthTokens,error)
+OAuthAuthorizationCapabilityProvider.OAuthAuthorizer()(OAuthAuthorizer,bool)
+ResolveOAuthAuthorizer(Adapter)(OAuthAuthorizer,bool)
+OAuthConnectionTestScopeProvider.OAuthConnectionTestScopes()([][]string,bool)
+ResolveOAuthConnectionTestScopes(Adapter)([][]string,bool)
+OAuthConnectionTestScopes=RegisteredSnapshot;AlternativesOR;MembersAND;NeverExpandAuthorization
+OAuthOperationScopeProvider.OAuthOperationScopes(string)([][]string,bool)
+ResolveOAuthOperationScopes(Adapter,string)([][]string,bool)
+OAuthOperationScopes=RegisteredOperationsSnapshot;AlternativesOR;MembersAND;AbsenceNeverGrantsAccountAccess;CallerAuthorizationAndOperationEffectSeparate
+OAuthOwnership=IntegrationSessionAuthorizationStatePKCEPersistence;ProviderTransportedProtocolOnly
+OAuthCodeExchange=OnceOnly;UncertainResultsNeverBlindRetry
+OAuthSecrets=StateCodeVerifierClientSecretAndTokensNeverSerialized
 NoOptionalInvoker=Adapter.CallIsTheOnlyProviderOperationExecutionEntry
 ErrorClassification=retryable,permanent,uncertain
 NewProviderError(ErrorClassification,string,error)error
@@ -116,7 +129,7 @@ AdapterSecretUpdates=ProviderDescriptorSecretFieldsOnly
 
 func ComputedContractSHA256() string {
 	structs := []any{
-		Connection{}, Principal{}, CallRequest{}, CallResult{}, ResourceHealthReport{}, TestConnectionRequest{}, TestConnectionResult{}, VerifyWebhookRequest{}, WebhookSecurityEvidence{}, WebhookExternalIdentity{}, WebhookDeliveryReceipt{}, VerifiedWebhook{}, ProviderError{}, IdempotencyContract{}, CompensationContract{}, ReliabilityContract{}, ReconcileRequest{}, ReconcileResult{}, BackgroundTaskDescriptor{}, BackgroundRequest{}, BackgroundEvent{}, BackgroundCommit{}, BackgroundResult{},
+		Connection{}, OAuthAuthorizationRequest{}, OAuthCodeExchangeRequest{}, OAuthTokens{}, Principal{}, CallRequest{}, CallResult{}, ResourceHealthReport{}, TestConnectionRequest{}, TestConnectionResult{}, VerifyWebhookRequest{}, WebhookSecurityEvidence{}, WebhookExternalIdentity{}, WebhookDeliveryReceipt{}, VerifiedWebhook{}, ProviderError{}, IdempotencyContract{}, CompensationContract{}, ReliabilityContract{}, ReconcileRequest{}, ReconcileResult{}, BackgroundTaskDescriptor{}, BackgroundRequest{}, BackgroundEvent{}, BackgroundCommit{}, BackgroundResult{},
 		DeliveryResult{}, OperationDescriptor{}, FieldLocalization{}, ConfigValidation{}, ConfigField{}, SecretField{}, ProviderSchema{}, ProviderDescriptor{}, ProviderSet{},
 		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{}, SMTPRequest{}, SMTPResult{}, MQTTRequest{}, MQTTResult{}, FilesystemRequest{}, FilesystemResult{}, ProcessRequest{},
 	}

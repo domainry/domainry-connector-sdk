@@ -28,8 +28,24 @@ type Registry struct {
 }
 
 type frozenAdapter struct {
-	descriptor ProviderDescriptor
-	delegate   Adapter
+	descriptor              ProviderDescriptor
+	delegate                Adapter
+	oauthTestScopes         [][]string
+	oauthTestScopesDeclared bool
+	oauthOperationScopes    map[string][][]string
+}
+
+func (a *frozenAdapter) OAuthOperationScopes(operationKey string) ([][]string, bool) {
+	values, declared := a.oauthOperationScopes[operationKey]
+	return cloneOAuthScopeAlternatives(values), declared
+}
+
+func (a *frozenAdapter) OAuthConnectionTestScopes() ([][]string, bool) {
+	return cloneOAuthScopeAlternatives(a.oauthTestScopes), a.oauthTestScopesDeclared
+}
+
+func (a *frozenAdapter) OAuthAuthorizer() (OAuthAuthorizer, bool) {
+	return ResolveOAuthAuthorizer(a.delegate)
 }
 
 func (a *frozenAdapter) BackgroundProcessor() (BackgroundProcessor, bool) {
@@ -144,6 +160,13 @@ func (a *frozenAdapter) Call(ctx context.Context, request CallRequest) (CallResu
 
 func freezeAdapter(provider Adapter, descriptor ProviderDescriptor) Adapter {
 	base := &frozenAdapter{descriptor: cloneProviderDescriptor(descriptor), delegate: provider}
+	base.oauthTestScopes, base.oauthTestScopesDeclared = ResolveOAuthConnectionTestScopes(provider)
+	base.oauthOperationScopes = make(map[string][][]string)
+	for _, operation := range descriptor.Operations {
+		if values, declared := ResolveOAuthOperationScopes(provider, operation.Key); declared {
+			base.oauthOperationScopes[operation.Key] = values
+		}
+	}
 	validator, hasValidator := provider.(ConfigValidator)
 	tester, hasTester := provider.(ConnectionTester)
 	verifier, hasVerifier := provider.(WebhookVerifier)

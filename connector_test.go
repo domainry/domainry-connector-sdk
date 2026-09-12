@@ -564,7 +564,7 @@ func TestProviderRegistryPreservesOnlyCapabilitiesActuallyImplemented(t *testing
 }
 
 func TestContractIdentityIsStable(t *testing.T) {
-	if ContractVersion != "connector-contract-v13" {
+	if ContractVersion != "connector-contract-v16" {
 		t.Fatalf("connector contract version=%q", ContractVersion)
 	}
 	if actual := ComputedContractSHA256(); actual != ContractSHA256 {
