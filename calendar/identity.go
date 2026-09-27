@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-const ContractVersion = "calendar-read-v1"
-const ContractSHA256 = "ef24ce63d41fce802f52702d991ca20c9f41148bcb7fdf310902fc22135288f6"
+const ContractVersion = "calendar-read-v2"
+const ContractSHA256 = "fabe48918f52c97e123356555ec97ba4d27071d41931f6b184eccff30ccf060f"
 const (
 	ListOperationKey         = "calendar_list"
 	EventsOperationKey       = "calendar_events"
@@ -19,7 +19,7 @@ const (
 func ComputedContractSHA256() string {
 	var b strings.Builder
 	b.WriteString(ContractVersion + ";read-only;date-end-exclusive;instant-offset-required;window-half-open;max-window-93-days;page-100;calendars-20;unknown-never-free;local-time-iana-unique-or-reject;")
-	for _, v := range []any{PageRequest{}, Window{}, EventsRequest{}, EventRequest{}, AvailabilityRequest{}, Calendar{}, Moment{}, Event{}, CalendarsPage{}, EventsPage{}, CalendarBusy{}, Availability{}} {
+	for _, v := range []any{Participant{}, PageRequest{}, Window{}, EventsRequest{}, EventRequest{}, AvailabilityRequest{}, Calendar{}, Moment{}, Event{}, CalendarsPage{}, EventsPage{}, CalendarBusy{}, Availability{}} {
 		t := reflect.TypeOf(v)
 		b.WriteString(t.Name() + "{")
 		for i := 0; i < t.NumField(); i++ {

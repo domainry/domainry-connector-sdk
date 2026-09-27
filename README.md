@@ -72,7 +72,7 @@ The SDK is available under the MIT License. See [LICENSE](LICENSE).
 
 ## Calendar read contracts
 
-The optional `calendar` package defines a separate `calendar-read-v1` contract
+The optional `calendar` package defines a separate `calendar-read-v2` contract
 for provider-neutral calendar lists, windowed events, event details and availability.
 It includes deterministic operation identities and time validation; it owns no
 account, authorization or transport. Date-only all-day bounds remain dates with
@@ -101,7 +101,7 @@ remain unchanged.
 
 ## Calendar and mail write contracts
 
-`calendarwrite` defines the separate `calendar-write-v1` contract for inspecting
+`calendarwrite` defines the separate `calendar-write-v2` contract for inspecting
 an exact event, creating an event, and applying a version-checked patch. A
 single event and a whole recurring series require distinct explicit scopes.
 The target attendee list and requested notification policy are part of the

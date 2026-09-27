@@ -2,6 +2,19 @@
 // credential, authorization, persistence or network implementation.
 package calendar
 
+// Participant is a provider-neutral event participant. Role and
+// ResponseStatus use the canonical values validated by this package so CRM
+// consumers do not need provider-specific RSVP vocabularies.
+type Participant struct {
+	ID             string `json:"id,omitempty"`
+	Email          string `json:"email,omitempty"`
+	DisplayName    string `json:"display_name,omitempty"`
+	Role           string `json:"role,omitempty"`
+	ResponseStatus string `json:"response_status,omitempty"`
+	Self           bool   `json:"self,omitempty"`
+	External       bool   `json:"external,omitempty"`
+}
+
 type PageRequest struct {
 	Limit  int    `json:"limit,omitempty"`
 	Cursor string `json:"cursor,omitempty"`
@@ -51,18 +64,22 @@ type Moment struct {
 }
 
 type Event struct {
-	ID            string  `json:"id"`
-	CalendarID    string  `json:"calendar_id"`
-	Title         string  `json:"title,omitempty"`
-	Description   string  `json:"description,omitempty"`
-	Location      string  `json:"location,omitempty"`
-	URL           string  `json:"url,omitempty"`
-	Status        string  `json:"status,omitempty"`
-	Start         Moment  `json:"start"`
-	End           Moment  `json:"end"`
-	SeriesID      string  `json:"series_id,omitempty"`
-	OriginalStart *Moment `json:"original_start,omitempty"`
-	Transparency  string  `json:"transparency,omitempty"`
+	ID            string        `json:"id"`
+	CalendarID    string        `json:"calendar_id"`
+	Title         string        `json:"title,omitempty"`
+	Description   string        `json:"description,omitempty"`
+	Location      string        `json:"location,omitempty"`
+	URL           string        `json:"url,omitempty"`
+	MeetingURL    string        `json:"meeting_url,omitempty"`
+	Status        string        `json:"status,omitempty"`
+	Start         Moment        `json:"start"`
+	End           Moment        `json:"end"`
+	SeriesID      string        `json:"series_id,omitempty"`
+	OriginalStart *Moment       `json:"original_start,omitempty"`
+	Recurrence    []string      `json:"recurrence,omitempty"`
+	Organizer     *Participant  `json:"organizer,omitempty"`
+	Attendees     []Participant `json:"attendees,omitempty"`
+	Transparency  string        `json:"transparency,omitempty"`
 }
 
 type CalendarsPage struct {

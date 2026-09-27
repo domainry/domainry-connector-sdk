@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "664cb625e96fed3fcfd88c6b25e0087c63aa18e22dd2c960ab9d858b85941fee"
+const ContractSHA256 = "18e3da970b4bf57d94601fd6f31fee1392b2c26b52a49e083b1b5d94f0fbf4db"
 
-const contractMaterial = `connector-contract-v16
+const contractMaterial = `connector-contract-v17
 PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}

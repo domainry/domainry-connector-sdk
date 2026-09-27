@@ -49,7 +49,7 @@ func TestCalendarTimeAndQueryValidation(t *testing.T) {
 			t.Fatalf("invalid query accepted: %+v", copy)
 		}
 	}
-	e := Event{ID: "all-day", CalendarID: "calendar", Start: Moment{Date: "2026-03-08"}, End: Moment{Date: "2026-03-10"}}
+	e := Event{ID: "all-day", CalendarID: "calendar", Start: Moment{Date: "2026-03-08"}, End: Moment{Date: "2026-03-10"}, MeetingURL: "https://meet.example.test/room", Recurrence: []string{"RRULE:FREQ=WEEKLY"}, Organizer: &Participant{Email: "owner@example.test", Role: "organizer", ResponseStatus: "accepted", Self: true}, Attendees: []Participant{{ID: "guest-1", Email: "guest@example.test", Role: "required", ResponseStatus: "tentative", External: true}}}
 	if err := e.Validate(); err != nil {
 		t.Fatal(err)
 	}
@@ -69,6 +69,21 @@ func TestCalendarTimeAndQueryValidation(t *testing.T) {
 	for _, m := range []Moment{{}, {Date: "2026-02-30"}, {Date: "2026-03-08", DateTime: "2026-03-08T00:00:00Z"}, {DateTime: "2026-03-08T02:30:00"}} {
 		if m.Validate() == nil {
 			t.Fatalf("ambiguous moment accepted: %+v", m)
+		}
+	}
+	base := Event{ID: "event", CalendarID: "calendar", Start: Moment{DateTime: "2026-09-26T09:00:00+08:00"}, End: Moment{DateTime: "2026-09-26T10:00:00+08:00"}}
+	for _, change := range []func(*Event){
+		func(value *Event) { value.MeetingURL = "http://meet.example.test/room" },
+		func(value *Event) { value.Recurrence = []string{" RRULE:FREQ=DAILY"} },
+		func(value *Event) { value.Organizer = &Participant{Email: "owner@example.test", Role: "required"} },
+		func(value *Event) { value.Attendees = []Participant{{DisplayName: "No identity"}} },
+		func(value *Event) { value.Attendees = []Participant{{Email: "guest@example.test", Role: "viewer"}} },
+		func(value *Event) { value.Attendees = []Participant{{Email: "Guest <guest@example.test>"}} },
+	} {
+		invalid := base
+		change(&invalid)
+		if invalid.Validate() == nil {
+			t.Fatalf("invalid participant or recurrence accepted: %+v", invalid)
 		}
 	}
 }

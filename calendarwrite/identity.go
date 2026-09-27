@@ -9,8 +9,8 @@ import (
 	"github.com/domainry/domainry-connector-sdk/calendar"
 )
 
-const ContractVersion = "calendar-write-v1"
-const ContractSHA256 = "7535ffee48efcb9bdd8686ac25a5b3f8c9aa9be39cbe6a4298f603e0f66d5001"
+const ContractVersion = "calendar-write-v2"
+const ContractSHA256 = "b0cec1da745dafdddd4f9eebc45e41eb0efc66bf5895ef3d24969d9abf6ba906"
 
 func ComputedContractSHA256() string {
 	var b strings.Builder

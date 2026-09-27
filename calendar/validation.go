@@ -2,6 +2,8 @@ package calendar
 
 import (
 	"fmt"
+	"net/mail"
+	"net/url"
 	"strings"
 	"time"
 	_ "time/tzdata"
@@ -10,6 +12,8 @@ import (
 const MaximumPageSize = 100
 const MaximumCalendars = 20
 const MaximumWindow = 93 * 24 * time.Hour
+const MaximumParticipants = 1000
+const MaximumRecurrenceRules = 64
 
 func ValidID(value string) bool {
 	if value == "" || value == "." || value == ".." || len(value) > 1024 || strings.TrimSpace(value) != value {
@@ -112,6 +116,46 @@ func (m Moment) Validate() error {
 	return nil
 }
 
+func (p Participant) Validate() error {
+	if p.ID == "" && p.Email == "" {
+		return fmt.Errorf("calendar participant requires an id or email")
+	}
+	if p.ID != "" && !ValidID(p.ID) {
+		return fmt.Errorf("invalid calendar participant id")
+	}
+	if p.Email != "" {
+		address, err := mail.ParseAddress(p.Email)
+		if err != nil || address.Address != p.Email || len(p.Email) > 320 {
+			return fmt.Errorf("invalid calendar participant email")
+		}
+	}
+	if len(p.DisplayName) > 1024 {
+		return fmt.Errorf("calendar participant display name is too long")
+	}
+	switch p.Role {
+	case "", "organizer", "required", "optional", "resource":
+	default:
+		return fmt.Errorf("invalid calendar participant role")
+	}
+	switch p.ResponseStatus {
+	case "", "needs_action", "accepted", "tentative", "declined", "delegated", "unknown":
+	default:
+		return fmt.Errorf("invalid calendar participant response status")
+	}
+	return nil
+}
+
+func validateHTTPSURL(value, field string) error {
+	if value == "" {
+		return nil
+	}
+	parsed, err := url.Parse(value)
+	if err != nil || parsed.Scheme != "https" || parsed.Host == "" || parsed.User != nil || len(value) > 8192 {
+		return fmt.Errorf("calendar %s must be an HTTPS URL", field)
+	}
+	return nil
+}
+
 func (e Event) Validate() error {
 	if !ValidID(e.ID) || !ValidID(e.CalendarID) {
 		return fmt.Errorf("calendar event identifiers are required")
@@ -137,7 +181,33 @@ func (e Event) Validate() error {
 		}
 	}
 	if e.OriginalStart != nil {
-		return e.OriginalStart.Validate()
+		if err := e.OriginalStart.Validate(); err != nil {
+			return err
+		}
+	}
+	if err := validateHTTPSURL(e.MeetingURL, "meeting_url"); err != nil {
+		return err
+	}
+	if len(e.Recurrence) > MaximumRecurrenceRules {
+		return fmt.Errorf("calendar recurrence has too many rules")
+	}
+	for _, rule := range e.Recurrence {
+		if strings.TrimSpace(rule) != rule || rule == "" || len(rule) > 8192 {
+			return fmt.Errorf("invalid calendar recurrence rule")
+		}
+	}
+	if e.Organizer != nil {
+		if err := e.Organizer.Validate(); err != nil || e.Organizer.Role != "organizer" {
+			return fmt.Errorf("invalid calendar organizer")
+		}
+	}
+	if len(e.Attendees) > MaximumParticipants {
+		return fmt.Errorf("calendar event has too many attendees")
+	}
+	for _, participant := range e.Attendees {
+		if err := participant.Validate(); err != nil {
+			return err
+		}
 	}
 	return nil
 }
