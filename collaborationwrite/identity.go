@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const ContractVersion = "collaboration-write-v1"
+const ContractVersion = "collaboration-write-v2"
 
 func ComputedContractSHA256() string {
 	var builder strings.Builder

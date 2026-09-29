@@ -13,7 +13,7 @@ func TestContractDeclaresOnlyBoundedDirectSend(t *testing.T) {
 	if len(hash) != 64 || hash != write.OperationSHA256(write.SendOperationKey) || write.OperationSHA256("send_message") != "" {
 		t.Fatalf("operation hash=%q", hash)
 	}
-	request := write.SendRequest{Recipient: "buyer@example.test", Text: "已确认，下周见。"}
+	request := write.SendRequest{Recipient: "ou_buyer", Text: "已确认，下周见。"}
 	raw, err := json.Marshal(request)
 	var decoded write.SendRequest
 	if err != nil || json.Unmarshal(raw, &decoded) != nil || decoded != request {
@@ -21,8 +21,7 @@ func TestContractDeclaresOnlyBoundedDirectSend(t *testing.T) {
 	}
 	for _, invalid := range []string{
 		`{"recipient":"buyer@example.test","text":"ok","access_token":"secret"}`,
-		`{"recipient":"Buyer <buyer@example.test>","text":"ok"}`,
-		`{"recipient":"one@example.test,two@example.test","text":"ok"}`,
+		`{"recipient":"Buyer open_id","text":"ok"}`,
 		`{"recipient":"buyer@example.test","text":""}`,
 		`{"recipient":"buyer@example.test","text":"ok"} {}`,
 	} {
@@ -33,6 +32,11 @@ func TestContractDeclaresOnlyBoundedDirectSend(t *testing.T) {
 	tooLong := write.SendRequest{Recipient: "buyer@example.test", Text: strings.Repeat("x", 8001)}
 	if tooLong.Validate() == nil {
 		t.Fatal("message text limit was not enforced")
+	}
+	for _, recipient := range []string{"buyer@example.test", "ou_buyer", "on_buyer", "user_123", "oc_chat"} {
+		if err := (write.SendRequest{Recipient: recipient, Text: "ok"}).Validate(); err != nil {
+			t.Fatalf("recipient identifier %q was rejected: %v", recipient, err)
+		}
 	}
 }
 

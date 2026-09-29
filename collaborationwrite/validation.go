@@ -2,7 +2,6 @@ package collaborationwrite
 
 import (
 	"fmt"
-	"net/mail"
 	"strings"
 	"time"
 	"unicode"
@@ -25,11 +24,11 @@ func (request SendRequest) Validate() error {
 	if !validText(request.Recipient, 320, false) || !validText(request.Text, 8000, true) {
 		return fmt.Errorf("collaboration message recipient and text are invalid")
 	}
-	// Aurora's configured Feishu connection resolves recipients by verified
-	// email. Reject display names and multiple-address forms at the contract.
-	address, err := mail.ParseAddress(request.Recipient)
-	if err != nil || address.Address != request.Recipient || address.Name != "" {
-		return fmt.Errorf("collaboration message recipient must be one mailbox address")
+	// The connection declares whether this one exact identifier is an email,
+	// open_id, union_id, user_id or chat_id. Keep the shared write contract
+	// provider-neutral while rejecting ambiguous whitespace-delimited values.
+	if strings.IndexFunc(request.Recipient, unicode.IsSpace) >= 0 {
+		return fmt.Errorf("collaboration message recipient must be one identifier")
 	}
 	return nil
 }
