@@ -33,6 +33,7 @@ type frozenAdapter struct {
 	oauthTestScopes         [][]string
 	oauthTestScopesDeclared bool
 	oauthOperationScopes    map[string][][]string
+	providerAccountProbe    bool
 }
 
 func (a *frozenAdapter) OAuthOperationScopes(operationKey string) ([][]string, bool) {
@@ -43,6 +44,11 @@ func (a *frozenAdapter) OAuthOperationScopes(operationKey string) ([][]string, b
 func (a *frozenAdapter) OAuthConnectionTestScopes() ([][]string, bool) {
 	return cloneOAuthScopeAlternatives(a.oauthTestScopes), a.oauthTestScopesDeclared
 }
+
+// ProviderAccountProbeEnabled preserves the Integration-owned OAuth identity
+// probe opt-in across registry freezing. The marker is deliberately snapshotted
+// so callers never regain access to the mutable source adapter.
+func (a *frozenAdapter) ProviderAccountProbeEnabled() bool { return a.providerAccountProbe }
 
 func (a *frozenAdapter) OAuthAuthorizer() (OAuthAuthorizer, bool) {
 	return ResolveOAuthAuthorizer(a.delegate)
@@ -161,6 +167,9 @@ func (a *frozenAdapter) Call(ctx context.Context, request CallRequest) (CallResu
 func freezeAdapter(provider Adapter, descriptor ProviderDescriptor) Adapter {
 	base := &frozenAdapter{descriptor: cloneProviderDescriptor(descriptor), delegate: provider}
 	base.oauthTestScopes, base.oauthTestScopesDeclared = ResolveOAuthConnectionTestScopes(provider)
+	if probe, ok := provider.(interface{ ProviderAccountProbeEnabled() bool }); ok {
+		base.providerAccountProbe = probe.ProviderAccountProbeEnabled()
+	}
 	base.oauthOperationScopes = make(map[string][][]string)
 	for _, operation := range descriptor.Operations {
 		if values, declared := ResolveOAuthOperationScopes(provider, operation.Key); declared {

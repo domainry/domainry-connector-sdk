@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "18e3da970b4bf57d94601fd6f31fee1392b2c26b52a49e083b1b5d94f0fbf4db"
+const ContractSHA256 = "fee4768c9d7216ebbb4453f987f8e360805843c9c11eba1602c7df5dd5332a9f"
 
-const contractMaterial = `connector-contract-v17
+const contractMaterial = `connector-contract-v18
 PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
@@ -72,11 +72,13 @@ BackgroundTaskDescriptor.Validate()error
 BackgroundRequest.Validate()error
 BackgroundEvent.Validate()error
 BackgroundCommit.Validate()error
+BackgroundObservation.Validate()error
 BackgroundResult.Validate()error
 BackgroundCleanupProcessor.CleanupBackground(context.Context,Connection,map[string]string,time.Time,Principal)(map[string]string,error)
 BackgroundCleanupCapabilityProvider.BackgroundCleanupProcessor()(BackgroundCleanupProcessor,bool)
 BackgroundExecution=ProviderOwnedStateSemanticsAndRuntimeOwnedPersistenceLeaseSecretsTransportAudit
 BackgroundCommit=RuntimeExecutesOnlyAfterDurableStateAndEventCommit
+BackgroundObservation=ProviderSourceFact;PositiveAggregateValue;HostAllowlistPersistenceOnly;DuplicateKeysRejected
 CompensationMode=none,explicit,saga
 CompensationTarget=DistinctTerminalIdempotentProviderReconcilableEnqueueWriteOperation
 CompensationExecution=Adapter.CallViaCommittedOutbox

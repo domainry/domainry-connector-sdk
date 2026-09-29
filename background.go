@@ -85,6 +85,25 @@ type BackgroundCommit struct {
 	Payload        json.RawMessage `json:"payload"`
 }
 
+// BackgroundObservation is a source-owned, aggregate-safe fact produced by a
+// successful task transition. Integration decides which exact observation
+// keys it persists and never exposes task state or provider payload through
+// the monitoring surface.
+type BackgroundObservation struct {
+	Key   string `json:"key"`
+	Value int64  `json:"value"`
+}
+
+func (o BackgroundObservation) Validate() error {
+	if strings.TrimSpace(o.Key) == "" || o.Key != strings.TrimSpace(o.Key) || len(o.Key) > 128 {
+		return fmt.Errorf("connector background observation requires a canonical key")
+	}
+	if o.Value <= 0 {
+		return fmt.Errorf("connector background observation %s requires a positive value", o.Key)
+	}
+	return nil
+}
+
 func (c BackgroundCommit) Validate() error {
 	if strings.TrimSpace(c.OperationKey) == "" || strings.TrimSpace(c.ContractSHA256) == "" {
 		return fmt.Errorf("connector background commit requires operation identity")
@@ -96,12 +115,13 @@ func (c BackgroundCommit) Validate() error {
 }
 
 type BackgroundResult struct {
-	State         json.RawMessage    `json:"state"`
-	NextDueAt     time.Time          `json:"next_due_at,omitempty"`
-	Events        []BackgroundEvent  `json:"events,omitempty"`
-	Commit        []BackgroundCommit `json:"commit,omitempty"`
-	WakeTasks     []string           `json:"wake_tasks,omitempty"`
-	SecretUpdates map[string]string  `json:"secret_updates,omitempty"`
+	State         json.RawMessage         `json:"state"`
+	NextDueAt     time.Time               `json:"next_due_at,omitempty"`
+	Events        []BackgroundEvent       `json:"events,omitempty"`
+	Commit        []BackgroundCommit      `json:"commit,omitempty"`
+	Observations  []BackgroundObservation `json:"observations,omitempty"`
+	WakeTasks     []string                `json:"wake_tasks,omitempty"`
+	SecretUpdates map[string]string       `json:"secret_updates,omitempty"`
 }
 
 func (r BackgroundResult) Validate() error {
@@ -117,6 +137,16 @@ func (r BackgroundResult) Validate() error {
 		if err := commit.Validate(); err != nil {
 			return err
 		}
+	}
+	observationKeys := make(map[string]struct{}, len(r.Observations))
+	for _, observation := range r.Observations {
+		if err := observation.Validate(); err != nil {
+			return err
+		}
+		if _, exists := observationKeys[observation.Key]; exists {
+			return fmt.Errorf("connector background observation %s is duplicated", observation.Key)
+		}
+		observationKeys[observation.Key] = struct{}{}
 	}
 	for _, task := range r.WakeTasks {
 		if strings.TrimSpace(task) == "" || task != strings.TrimSpace(task) {

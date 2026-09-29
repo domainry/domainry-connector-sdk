@@ -13,8 +13,10 @@ type oauthScopeTestProvider struct {
 	Adapter
 	scopes [][]string
 }
+type oauthProviderAccountProbeTestProvider struct{ Adapter }
 
-func (p oauthScopeTestProvider) OAuthConnectionTestScopes() ([][]string, bool) { return p.scopes, true }
+func (p oauthScopeTestProvider) OAuthConnectionTestScopes() ([][]string, bool)  { return p.scopes, true }
+func (oauthProviderAccountProbeTestProvider) ProviderAccountProbeEnabled() bool { return true }
 
 func (oauthTestProvider) AuthorizationURL(OAuthAuthorizationRequest) (string, error) {
 	return "https://example.test/authorize", nil
@@ -117,5 +119,22 @@ func TestOAuthTestScopesRegistrySnapshot(t *testing.T) {
 		if !reflect.DeepEqual(second, want) {
 			t.Fatalf("consumer mutated registered metadata: %v", second)
 		}
+	}
+}
+
+func TestOAuthProviderAccountProbeOptInSurvivesRegistryFreeze(t *testing.T) {
+	base := memberProvider(t)
+	registry := NewRegistry()
+	if err := registry.Register(oauthProviderAccountProbeTestProvider{Adapter: base}); err != nil {
+		t.Fatal(err)
+	}
+	registry.Freeze()
+	frozen, ok := registry.Provider("member_center", "acme")
+	if !ok {
+		t.Fatal("provider was not registered")
+	}
+	probe, ok := frozen.(interface{ ProviderAccountProbeEnabled() bool })
+	if !ok || !probe.ProviderAccountProbeEnabled() {
+		t.Fatalf("registry discarded provider account probe opt-in: %T", frozen)
 	}
 }

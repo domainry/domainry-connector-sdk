@@ -49,3 +49,19 @@ func TestBackgroundContractsAndFrozenRegistryCapability(t *testing.T) {
 		t.Fatalf("result=%s error=%v", result.State, err)
 	}
 }
+
+func TestBackgroundResultValidatesAggregateObservations(t *testing.T) {
+	valid := BackgroundResult{State: json.RawMessage(`{}`), Observations: []BackgroundObservation{{Key: "google.gmail.history.messages_added", Value: 2}}}
+	if err := valid.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	for _, observations := range [][]BackgroundObservation{
+		{{Key: "", Value: 1}},
+		{{Key: "google.gmail.history.messages_added", Value: 0}},
+		{{Key: "google.gmail.history.messages_added", Value: 1}, {Key: "google.gmail.history.messages_added", Value: 2}},
+	} {
+		if err := (BackgroundResult{State: json.RawMessage(`{}`), Observations: observations}).Validate(); err == nil {
+			t.Fatalf("observations %#v unexpectedly validated", observations)
+		}
+	}
+}
