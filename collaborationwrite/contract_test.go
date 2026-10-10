@@ -38,6 +38,9 @@ func TestContractDeclaresOnlyBoundedDirectSend(t *testing.T) {
 			t.Fatalf("recipient identifier %q was rejected: %v", recipient, err)
 		}
 	}
+	if err := (write.SendRequest{Recipient: "one@example.test,two@example.test", Text: "ok"}).Validate(); err == nil {
+		t.Fatal("multiple recipient identifiers were accepted")
+	}
 }
 
 func TestReceiptBindsRequestAndCannotClaimDelivery(t *testing.T) {

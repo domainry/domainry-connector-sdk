@@ -26,8 +26,8 @@ func (request SendRequest) Validate() error {
 	}
 	// The connection declares whether this one exact identifier is an email,
 	// open_id, union_id, user_id or chat_id. Keep the shared write contract
-	// provider-neutral while rejecting ambiguous whitespace-delimited values.
-	if strings.IndexFunc(request.Recipient, unicode.IsSpace) >= 0 {
+	// provider-neutral while rejecting ambiguous multi-recipient values.
+	if strings.IndexFunc(request.Recipient, unicode.IsSpace) >= 0 || strings.ContainsRune(request.Recipient, ',') {
 		return fmt.Errorf("collaboration message recipient must be one identifier")
 	}
 	return nil
