@@ -15,7 +15,12 @@ const (
 	MaximumBodyBytes = 64 << 10
 	GmailSyntax      = "gmail"
 	GraphSyntax      = "graph-kql"
+	FeishuSyntax     = "feishu-mail"
 )
+
+func validQuerySyntax(value string) bool {
+	return value == GmailSyntax || value == GraphSyntax || value == FeishuSyntax
+}
 
 func validText(s string, max int) bool {
 	return len(s) <= max && utf8.ValidString(s) && !strings.ContainsFunc(s, unicode.IsControl)
@@ -48,7 +53,7 @@ func (s SearchRequest) Validate() error {
 	if err := (PageRequest{Limit: s.Limit, Cursor: s.Cursor}).Validate(); err != nil {
 		return err
 	}
-	if strings.TrimSpace(s.Query) == "" || !validText(s.Query, 1024) || s.QuerySyntax != GmailSyntax && s.QuerySyntax != GraphSyntax {
+	if strings.TrimSpace(s.Query) == "" || !validText(s.Query, 1024) || !validQuerySyntax(s.QuerySyntax) {
 		return errors.New("invalid mail search")
 	}
 	return nil
@@ -91,7 +96,7 @@ func (s Summary) Validate() error {
 }
 
 func (p MessagesPage) Validate(limit int) error {
-	if limit < 1 || limit > MaximumPageSize || p.Items == nil || len(p.Items) > limit || !validText(p.NextCursor, 8192) || p.QuerySyntax != GmailSyntax && p.QuerySyntax != GraphSyntax || !validText(p.MailboxScope, 128) || p.MailboxScope == "" {
+	if limit < 1 || limit > MaximumPageSize || p.Items == nil || len(p.Items) > limit || !validText(p.NextCursor, 8192) || !validQuerySyntax(p.QuerySyntax) || !validText(p.MailboxScope, 128) || p.MailboxScope == "" {
 		return errors.New("invalid mail page result")
 	}
 	if p.Complete && (p.NextCursor != "" || p.LimitReason != "") || !p.Complete && (p.NextCursor == "") == (p.LimitReason == "") || !validText(p.LimitReason, 64) {

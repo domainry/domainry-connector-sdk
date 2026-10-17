@@ -94,6 +94,36 @@ type BackgroundObservation struct {
 	Value int64  `json:"value"`
 }
 
+// BackgroundProgress is the provider-owned, user-safe progress snapshot for a
+// durable task. Integration persists this value separately from opaque State
+// and may expose it to an authorized connection owner. Phase and Unit are
+// canonical identifiers; products remain responsible for localized labels.
+// CompletedUnits describes the initialization milestone and must not decrease.
+type BackgroundProgress struct {
+	Phase                  string `json:"phase"`
+	Unit                   string `json:"unit,omitempty"`
+	CompletedUnits         int64  `json:"completed_units"`
+	TotalUnits             *int64 `json:"total_units,omitempty"`
+	InitializationComplete bool   `json:"initialization_complete"`
+}
+
+func (p BackgroundProgress) Validate() error {
+	phase, unit := strings.TrimSpace(p.Phase), strings.TrimSpace(p.Unit)
+	if phase == "" || phase != p.Phase || len(phase) > 128 {
+		return fmt.Errorf("connector background progress requires a bounded phase")
+	}
+	if unit != p.Unit || len(unit) > 64 {
+		return fmt.Errorf("connector background progress unit is too long")
+	}
+	if p.CompletedUnits < 0 {
+		return fmt.Errorf("connector background progress completed units cannot be negative")
+	}
+	if p.TotalUnits != nil && (*p.TotalUnits < 0 || p.CompletedUnits > *p.TotalUnits) {
+		return fmt.Errorf("connector background progress total units are invalid")
+	}
+	return nil
+}
+
 func (o BackgroundObservation) Validate() error {
 	if strings.TrimSpace(o.Key) == "" || o.Key != strings.TrimSpace(o.Key) || len(o.Key) > 128 {
 		return fmt.Errorf("connector background observation requires a canonical key")
@@ -117,6 +147,7 @@ func (c BackgroundCommit) Validate() error {
 type BackgroundResult struct {
 	State         json.RawMessage         `json:"state"`
 	NextDueAt     time.Time               `json:"next_due_at,omitempty"`
+	Progress      *BackgroundProgress     `json:"progress,omitempty"`
 	Events        []BackgroundEvent       `json:"events,omitempty"`
 	Commit        []BackgroundCommit      `json:"commit,omitempty"`
 	Observations  []BackgroundObservation `json:"observations,omitempty"`
@@ -127,6 +158,11 @@ type BackgroundResult struct {
 func (r BackgroundResult) Validate() error {
 	if !json.Valid(r.State) {
 		return fmt.Errorf("connector background result state must contain one JSON value")
+	}
+	if r.Progress != nil {
+		if err := r.Progress.Validate(); err != nil {
+			return err
+		}
 	}
 	for _, event := range r.Events {
 		if err := event.Validate(); err != nil {

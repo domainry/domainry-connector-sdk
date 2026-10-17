@@ -23,9 +23,9 @@ func TestContractIdentity(t *testing.T) {
 		t.Fatal("write acquired read identity")
 	}
 	for key, want := range map[string]string{
-		mail.ListOperationKey:   "a67a8c1553a2b8457dd54dd3d574994f05e8177ccae2b34a78239affa3fd3004",
-		mail.SearchOperationKey: "ca712330f5266cceb7fb4f46bbcca13f836e22c60bcc70d3fe95845e5818575f",
-		mail.ReadOperationKey:   "e98aba01bcab28ef70dd6dd5cac5c45a64e2d6d31899dc2e3105bb7a63f57a23",
+		mail.ListOperationKey:   "146c9c8f132adaeaf69c76bb0bcea428cf629784ad31c721d577a54993dfabdc",
+		mail.SearchOperationKey: "190a3f13ee9b3f2369e477607537641570a9de7afd95510d278b71e691a5a971",
+		mail.ReadOperationKey:   "c7882ae44629779aae98412523b31d5655d1a64b301abf18def34a7ed17dad59",
 	} {
 		if got := mail.OperationSHA256(key); got != want {
 			t.Fatal(key, got, want)
@@ -87,6 +87,9 @@ func TestMailReadContractDoesNotHidePartialOrUnknownResults(t *testing.T) {
 }
 
 func TestMailInputsAreBoundedAndDatesRemainInstants(t *testing.T) {
+	if err := (mail.SearchRequest{Query: "subject:报价", QuerySyntax: mail.FeishuSyntax}).Validate(); err != nil {
+		t.Fatalf("Feishu query syntax should be valid: %v", err)
+	}
 	for _, id := range []string{".", "..", "mail/../other"} {
 		if mail.ValidID(id) {
 			t.Fatal("path segment accepted as mail ID", id)

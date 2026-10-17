@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "fee4768c9d7216ebbb4453f987f8e360805843c9c11eba1602c7df5dd5332a9f"
+const ContractSHA256 = "176f60ef8281c9c261ebb25d4bda7f08551cdc9b43ce7ffa41e2afd30046b6b5"
 
-const contractMaterial = `connector-contract-v18
+const contractMaterial = `connector-contract-v19
 PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
@@ -73,12 +73,14 @@ BackgroundRequest.Validate()error
 BackgroundEvent.Validate()error
 BackgroundCommit.Validate()error
 BackgroundObservation.Validate()error
+BackgroundProgress.Validate()error
 BackgroundResult.Validate()error
 BackgroundCleanupProcessor.CleanupBackground(context.Context,Connection,map[string]string,time.Time,Principal)(map[string]string,error)
 BackgroundCleanupCapabilityProvider.BackgroundCleanupProcessor()(BackgroundCleanupProcessor,bool)
 BackgroundExecution=ProviderOwnedStateSemanticsAndRuntimeOwnedPersistenceLeaseSecretsTransportAudit
 BackgroundCommit=RuntimeExecutesOnlyAfterDurableStateAndEventCommit
 BackgroundObservation=ProviderSourceFact;PositiveAggregateValue;HostAllowlistPersistenceOnly;DuplicateKeysRejected
+BackgroundProgress=ProviderOwnedUserSafeInitializationSnapshot;HostPersistsSeparatelyFromOpaqueState;ProductLocalizesCanonicalPhaseAndUnit
 CompensationMode=none,explicit,saga
 CompensationTarget=DistinctTerminalIdempotentProviderReconcilableEnqueueWriteOperation
 CompensationExecution=Adapter.CallViaCommittedOutbox
@@ -131,7 +133,7 @@ AdapterSecretUpdates=ProviderDescriptorSecretFieldsOnly
 
 func ComputedContractSHA256() string {
 	structs := []any{
-		Connection{}, OAuthAuthorizationRequest{}, OAuthCodeExchangeRequest{}, OAuthTokens{}, Principal{}, CallRequest{}, CallResult{}, ResourceHealthReport{}, TestConnectionRequest{}, TestConnectionResult{}, VerifyWebhookRequest{}, WebhookSecurityEvidence{}, WebhookExternalIdentity{}, WebhookDeliveryReceipt{}, VerifiedWebhook{}, ProviderError{}, IdempotencyContract{}, CompensationContract{}, ReliabilityContract{}, ReconcileRequest{}, ReconcileResult{}, BackgroundTaskDescriptor{}, BackgroundRequest{}, BackgroundEvent{}, BackgroundCommit{}, BackgroundResult{},
+		Connection{}, OAuthAuthorizationRequest{}, OAuthCodeExchangeRequest{}, OAuthTokens{}, Principal{}, CallRequest{}, CallResult{}, ResourceHealthReport{}, TestConnectionRequest{}, TestConnectionResult{}, VerifyWebhookRequest{}, WebhookSecurityEvidence{}, WebhookExternalIdentity{}, WebhookDeliveryReceipt{}, VerifiedWebhook{}, ProviderError{}, IdempotencyContract{}, CompensationContract{}, ReliabilityContract{}, ReconcileRequest{}, ReconcileResult{}, BackgroundTaskDescriptor{}, BackgroundRequest{}, BackgroundEvent{}, BackgroundCommit{}, BackgroundProgress{}, BackgroundResult{},
 		DeliveryResult{}, OperationDescriptor{}, FieldLocalization{}, ConfigValidation{}, ConfigField{}, SecretField{}, ProviderSchema{}, ProviderDescriptor{}, ProviderSet{},
 		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{}, SMTPRequest{}, SMTPResult{}, MQTTRequest{}, MQTTResult{}, FilesystemRequest{}, FilesystemResult{}, ProcessRequest{},
 	}

@@ -10,7 +10,7 @@ import (
 )
 
 const ContractVersion = "mail-write-v1"
-const ContractSHA256 = "18d472fe742b5cdc77a61827fb82b36b4bd1e604b57d8826a70824582f8cbd57"
+const ContractSHA256 = "5d9384c9c6f8215c29032eb2f14cef2aeeb471591b70a1e6404bc8a8065993c1"
 
 func ComputedContractSHA256() string {
 	var b strings.Builder

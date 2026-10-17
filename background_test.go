@@ -65,3 +65,23 @@ func TestBackgroundResultValidatesAggregateObservations(t *testing.T) {
 		}
 	}
 }
+
+func TestBackgroundResultValidatesUserSafeProgress(t *testing.T) {
+	total := int64(20)
+	valid := BackgroundResult{State: json.RawMessage(`{}`), Progress: &BackgroundProgress{
+		Phase: "bootstrap.inbox", Unit: "message", CompletedUnits: 7, TotalUnits: &total,
+	}}
+	if err := valid.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	for _, progress := range []BackgroundProgress{
+		{},
+		{Phase: " bootstrap", CompletedUnits: 1},
+		{Phase: "bootstrap", CompletedUnits: -1},
+		{Phase: "bootstrap", CompletedUnits: 21, TotalUnits: &total},
+	} {
+		if err := (BackgroundResult{State: json.RawMessage(`{}`), Progress: &progress}).Validate(); err == nil {
+			t.Fatalf("progress %#v unexpectedly validated", progress)
+		}
+	}
+}
