@@ -58,6 +58,27 @@ func (e *ProviderError) Code() string {
 	return e.code
 }
 
+func (e *ProviderError) ApplicationErrorKind() string {
+	if e == nil {
+		return ""
+	}
+	switch e.classification {
+	case ErrorRetryable, ErrorUncertain:
+		return "unavailable"
+	default:
+		return "internal"
+	}
+}
+
+func (e *ProviderError) ErrorCode() string {
+	if e == nil {
+		return ""
+	}
+	return e.code
+}
+
+func (*ProviderError) ErrorParams() map[string]string { return nil }
+
 // NewProviderError creates a classified provider failure. Invalid class/code
 // input is converted to a permanent contract error rather than guessed or
 // allowed to become retryable.
