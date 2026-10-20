@@ -3,10 +3,11 @@ package connector
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"time"
 )
 
-const ContractVersion = "connector-contract-v19"
+const ContractVersion = "connector-contract-v20"
 
 type OperationMode string
 
@@ -61,6 +62,13 @@ type CallRequest struct {
 	Delivery       bool              `json:"delivery,omitempty"`
 	Timeout        time.Duration     `json:"timeout,omitempty"`
 	Principal      Principal         `json:"principal"`
+	// Content is an in-process, single-consumer stream for operations whose
+	// payload is too large for the JSON envelope. Gateways must preserve the
+	// reader unchanged and must never persist or retry it implicitly.
+	Content       io.Reader `json:"-"`
+	ContentLength int64     `json:"-"`
+	ContentSHA256 string    `json:"-"`
+	ContentType   string    `json:"-"`
 }
 
 type CallResult struct {

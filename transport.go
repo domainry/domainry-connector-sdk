@@ -2,6 +2,7 @@ package connector
 
 import (
 	"context"
+	"io"
 	"time"
 )
 
@@ -140,7 +141,11 @@ type HTTPRequest struct {
 	// not occur in the public Body.
 	SecretJSON       map[string]string `json:"-"`
 	Body             []byte            `json:"body,omitempty"`
+	Content          io.Reader         `json:"-"`
+	ContentLength    int64             `json:"-"`
+	ContentSHA256    string            `json:"-"`
 	MaxResponseBytes int64             `json:"max_response_bytes,omitempty"`
+	Timeout          time.Duration     `json:"timeout,omitempty"`
 }
 
 type HTTPResponse struct {

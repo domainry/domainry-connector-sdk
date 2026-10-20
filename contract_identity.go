@@ -7,14 +7,14 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "176f60ef8281c9c261ebb25d4bda7f08551cdc9b43ce7ffa41e2afd30046b6b5"
+const ContractSHA256 = "2d8732a45c4ce7bd07413aeadab79dd1b39115846e8f2485f1feca4801427f8b"
 
-const contractMaterial = `connector-contract-v19
+const contractMaterial = `connector-contract-v20
 PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 StartOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
-TypedRequest[Input]{Input,Connection,RequestRef,Headers,Secrets,Delivery,Principal}
+TypedRequest[Input]{Input,Connection,RequestRef,Headers,Secrets,Delivery,Principal,Content,ContentLength,ContentSHA256,ContentType}
 TypedResult[Output]{Output,ResponseRef,SecretUpdates,ResourceHealth}
 ResourceHealthReport=ExplicitProviderAPIOrStableProviderErrorOnly;AbsenceIsNeverInferred
 BindCall(CallOperation[Input,Output],CallHandler[Input,Output])(BoundOperation,error)
@@ -23,6 +23,7 @@ BindStartOperationDelivery(StartOperation[Input],DeliveryHandler[Input])(BoundOp
 HandlerErrorResult=PreserveResponseRefAndDescriptorScopedSecretUpdatesWithoutPayload
 ProviderHealthOnSuccessOrError=PreserveExplicitResourceHealthWithoutInference
 Call(context.Context,Gateway,CallOperation[Input,Output],Input)(Output,error)
+CallWithContent(context.Context,Gateway,CallOperation[Input,Output],Input,io.Reader,int64,string,string)(Output,error)
 Gateway.Call(context.Context,CallRequest)(CallResult,error)
 Adapter.Descriptor()ProviderDescriptor
 Adapter.Call(context.Context,CallRequest)(CallResult,error)
@@ -109,6 +110,7 @@ HTTPRequest.SecretHeaders=RuntimeInjectedImmediatelyBeforeDispatchAndNeverSerial
 HTTPRequest.SecretQuery=RuntimeInjectedImmediatelyBeforeDispatchAndNeverSerialized
 HTTPRequest.SecretForm=RuntimeInjectedIntoURLEncodedBodyImmediatelyBeforeDispatchAndNeverSerialized
 HTTPRequest.SecretJSON=RuntimeInjectedIntoTopLevelJSONObjectImmediatelyBeforeDispatchAndNeverSerialized
+HTTPRequest.Content=SingleConsumerNonReplayableStream;ExactLengthAndSHA256Required;NeverSerializedOrPersisted
 Transport.ExecuteSQL(context.Context,SQLRequest)(SQLResult,error)
 SQLOperation=ping,query,exec
 SMTPTransport.SendSMTP(context.Context,SMTPRequest)(SMTPResult,error)

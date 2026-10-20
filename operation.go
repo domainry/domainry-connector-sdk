@@ -12,6 +12,9 @@ import (
 
 var operationContractSHA256Pattern = regexp.MustCompile(`^[a-f0-9]{64}$`)
 
+// ValidSHA256 reports whether value is a normalized lowercase SHA-256 digest.
+func ValidSHA256(value string) bool { return operationContractSHA256Pattern.MatchString(value) }
+
 type OperationDescriptor struct {
 	ConnectorKey   string              `json:"connector_key"`
 	ProviderKey    string              `json:"provider_key"`
@@ -94,13 +97,17 @@ func (o StartOperation[I]) Descriptor() OperationDescriptor {
 }
 
 type TypedRequest[I any] struct {
-	Input      I
-	Connection Connection
-	RequestRef string
-	Headers    map[string]string
-	Secrets    map[string]string
-	Delivery   bool
-	Principal  Principal
+	Input         I
+	Connection    Connection
+	RequestRef    string
+	Headers       map[string]string
+	Secrets       map[string]string
+	Delivery      bool
+	Principal     Principal
+	Content       io.Reader
+	ContentLength int64
+	ContentSHA256 string
+	ContentType   string
 }
 
 type TypedResult[O any] struct {
@@ -150,6 +157,8 @@ func bindTypedOperation[I any, O any](descriptor OperationDescriptor, handler fu
 			Input: input, Connection: request.Connection, RequestRef: request.RequestRef,
 			Headers: cloneStrings(request.Headers), Secrets: cloneStrings(request.Secrets),
 			Delivery: request.Delivery, Principal: request.Principal,
+			Content: request.Content, ContentLength: request.ContentLength,
+			ContentSHA256: request.ContentSHA256, ContentType: request.ContentType,
 		})
 		if err != nil {
 			return CallResult{
@@ -206,6 +215,21 @@ func bindDeliveryOperation[I any](descriptor OperationDescriptor, handler Delive
 }
 
 func Call[I any, O any](ctx context.Context, gateway Gateway, operation CallOperation[I, O], input I) (O, error) {
+	return call(ctx, gateway, operation, input, nil, 0, "", "")
+}
+
+// CallWithContent sends one non-replayable content stream alongside bounded
+// JSON metadata. The caller owns the reader and exact identity declaration;
+// the provider transport verifies both byte count and SHA-256 while sending.
+func CallWithContent[I any, O any](ctx context.Context, gateway Gateway, operation CallOperation[I, O], input I, content io.Reader, contentLength int64, contentSHA256, contentType string) (O, error) {
+	if content == nil || contentLength < 1 || !operationContractSHA256Pattern.MatchString(contentSHA256) || strings.TrimSpace(contentType) == "" {
+		var zero O
+		return zero, errors.New("connector streamed content identity is invalid")
+	}
+	return call(ctx, gateway, operation, input, content, contentLength, contentSHA256, contentType)
+}
+
+func call[I any, O any](ctx context.Context, gateway Gateway, operation CallOperation[I, O], input I, content io.Reader, contentLength int64, contentSHA256, contentType string) (O, error) {
 	var zero O
 	if gateway == nil {
 		return zero, errors.New("connector gateway is required")
@@ -221,6 +245,7 @@ func Call[I any, O any](ctx context.Context, gateway Gateway, operation CallOper
 	result, err := gateway.Call(ctx, CallRequest{
 		ConnectorKey: descriptor.ConnectorKey, ProviderKey: descriptor.ProviderKey,
 		OperationKey: descriptor.Key, ContractSHA256: descriptor.ContractSHA256, Mode: descriptor.Mode, Payload: payload,
+		Content: content, ContentLength: contentLength, ContentSHA256: contentSHA256, ContentType: contentType,
 	})
 	if err != nil {
 		return zero, err

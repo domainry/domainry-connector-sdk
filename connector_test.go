@@ -564,7 +564,7 @@ func TestProviderRegistryPreservesOnlyCapabilitiesActuallyImplemented(t *testing
 }
 
 func TestContractIdentityIsStable(t *testing.T) {
-	if ContractVersion != "connector-contract-v19" {
+	if ContractVersion != "connector-contract-v20" {
 		t.Fatalf("connector contract version=%q", ContractVersion)
 	}
 	if actual := ComputedContractSHA256(); actual != ContractSHA256 {
@@ -728,7 +728,7 @@ func TestAdapterAndCallEnvelopeExposeTheStablePublicBoundary(t *testing.T) {
 		}
 	}
 	request := reflect.TypeOf(CallRequest{})
-	for _, fieldName := range []string{"ConnectorKey", "ProviderKey", "OperationKey", "ContractSHA256", "Mode", "Connection", "Payload", "RequestRef", "Headers", "Secrets", "Delivery", "Timeout", "Principal"} {
+	for _, fieldName := range []string{"ConnectorKey", "ProviderKey", "OperationKey", "ContractSHA256", "Mode", "Connection", "Payload", "RequestRef", "Headers", "Secrets", "Delivery", "Timeout", "Principal", "Content", "ContentLength", "ContentSHA256", "ContentType"} {
 		if _, exists := request.FieldByName(fieldName); !exists {
 			t.Fatalf("CallRequest is missing %s", fieldName)
 		}
