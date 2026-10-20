@@ -29,6 +29,7 @@ import (
 	"github.com/domainry/domainry-connector-sdk/calendar"
 	"github.com/domainry/domainry-connector-sdk/calendarwrite"
 	"github.com/domainry/domainry-connector-sdk/mail"
+	"github.com/domainry/domainry-connector-sdk/mailattachment"
 	"github.com/domainry/domainry-connector-sdk/mailwrite"
  "github.com/domainry/domainry-connector-sdk/web"
 )
@@ -40,6 +41,8 @@ var CalendarUpdate = connector.CallOperation[calendarwrite.UpdateRequest, calend
 var _ = calendarwrite.UpdateRequest.ValidateAgainst
 var MailLookup = connector.CallOperation[mail.ReadRequest, mail.Message]{ConnectorKey:"private", ProviderKey:"mail", Key:mail.ReadOperationKey, ContractSHA256:mail.OperationSHA256(mail.ReadOperationKey)}
 var _ = mail.MessagesPage.Validate
+var MailAttachmentDownload = connector.CallOperation[mailattachment.DownloadRequest, mailattachment.DownloadResult]{ConnectorKey:"private", ProviderKey:"mail", Key:mailattachment.DownloadOperationKey, ContractSHA256:mailattachment.OperationSHA256(mailattachment.DownloadOperationKey)}
+var _ = mailattachment.DownloadResult.Decode
 var MailSend = connector.CallOperation[mailwrite.SendRequest, mailwrite.Result]{ConnectorKey:"private", ProviderKey:"mail", Key:mailwrite.SendOperationKey, ContractSHA256:mailwrite.OperationSHA256(mailwrite.SendOperationKey)}
 var MailReply = connector.CallOperation[mailwrite.ReplyRequest, mailwrite.Result]{ConnectorKey:"private", ProviderKey:"mail", Key:mailwrite.ReplyOperationKey, ContractSHA256:mailwrite.OperationSHA256(mailwrite.ReplyOperationKey)}
 var _ = mailwrite.ReplyRequest.ValidateAgainst
