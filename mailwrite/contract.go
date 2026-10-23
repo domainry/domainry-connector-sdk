@@ -12,7 +12,8 @@ const (
 // Message is the complete, user-visible outgoing content. Recipient arrays
 // are explicit, including empty CC/BCC. From, arbitrary headers, raw MIME,
 // attachments and provider idempotency keys cannot be supplied by a caller.
-// Providers derive the sender and correlation from their trusted envelope.
+// Providers derive the sender and provider-native message/thread identity from
+// their trusted envelope.
 type Message struct {
 	To      []mail.Address `json:"to"`
 	CC      []mail.Address `json:"cc"`

@@ -114,7 +114,7 @@ checks and never treat a wildcard as an expected version.
 `mailwrite` defines `mail-write-v1` for new mail and replies with explicit To,
 CC, BCC, subject and plain text. Replies validate current original metadata and
 Reply-To recipients before provider-specific threading. Sender, headers and
-correlation identifiers come from the trusted invocation envelope. Receipts
+provider-native message/thread identifiers come from the trusted invocation envelope. Receipts
 record provider acceptance and explicitly unknown delivery; a Graph 202 needs
 no invented message ID.
 
