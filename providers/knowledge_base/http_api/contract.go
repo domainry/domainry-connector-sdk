@@ -153,11 +153,21 @@ type DocumentInput struct {
 	DocID string `json:"doc_id"`
 }
 
+type PutDocumentSource struct {
+	Provider    string `json:"provider"`
+	Title       string `json:"title"`
+	PageID      string `json:"page_id"`
+	PageVersion int64  `json:"page_version"`
+	LibraryKind string `json:"library_kind"`
+	ContentType string `json:"content_type"`
+}
+
 type PutDocumentInput struct {
-	DocID    string `json:"doc_id"`
-	Filename string `json:"filename"`
-	Bytes    int64  `json:"bytes"`
-	SHA256   string `json:"sha256"`
+	DocID    string             `json:"doc_id"`
+	Filename string             `json:"filename"`
+	Bytes    int64              `json:"bytes"`
+	SHA256   string             `json:"sha256"`
+	Source   *PutDocumentSource `json:"source,omitempty"`
 }
 
 type DocumentStatusOutput struct {
@@ -224,7 +234,7 @@ type AnalysisTableReadOutput struct {
 
 var Search = connector.CallOperation[SearchInput, Output]{ConnectorKey: ConnectorKey, ProviderKey: ProviderKey, Key: "search", ContractSHA256: "634b756d886ac5bb29d4bcd38c767f9765a41d75f5bfa1a14f1e139d626c09d7", Reliability: readReliability()}
 var Fetch = connector.CallOperation[FetchInput, Output]{ConnectorKey: ConnectorKey, ProviderKey: ProviderKey, Key: "fetch", ContractSHA256: "31256a5720fc482b2fd0cd0b259936a58f8bc903c712a66f567c934f42a6b80e", Reliability: readReliability()}
-var PutDocument = connector.CallOperation[PutDocumentInput, Output]{ConnectorKey: ConnectorKey, ProviderKey: ProviderKey, Key: "put_document", ContractSHA256: "f6f49d46f100ed2a9685de45e3046a47dc91e1760eb1f779858126abe9c6d772", Reliability: documentWriteReliability()}
+var PutDocument = connector.CallOperation[PutDocumentInput, Output]{ConnectorKey: ConnectorKey, ProviderKey: ProviderKey, Key: "put_document", ContractSHA256: "8d8b126611fd6fde68999d9225cc696251311df7f6a1a8e0fb27575fbdf77af7", Reliability: documentWriteReliability()}
 var DeleteDocument = connector.CallOperation[DocumentInput, Output]{ConnectorKey: ConnectorKey, ProviderKey: ProviderKey, Key: "delete_document", ContractSHA256: "e4bec5d6d992035b91bf019b55a609307dc56f401c89ef78709f74f57e8e8aa8", Reliability: documentDeleteReliability()}
 var DocumentStatus = connector.CallOperation[DocumentInput, DocumentStatusOutput]{ConnectorKey: ConnectorKey, ProviderKey: ProviderKey, Key: "document_status", ContractSHA256: "7b5608d5de92711c8069d7f0df8e41c789175584f5cd94dbe6e1e714331eb9cb", Reliability: readReliability()}
 var CatalogAnalysisTables = connector.CallOperation[AnalysisTableCatalogInput, AnalysisTableCatalogOutput]{ConnectorKey: ConnectorKey, ProviderKey: ProviderKey, Key: "analysis_table_catalog", ContractSHA256: "a4cc8ab7e1c7f78a2c17995dece68922d90dfb19e6b1dc5017199074be29b266", Reliability: readReliability()}
