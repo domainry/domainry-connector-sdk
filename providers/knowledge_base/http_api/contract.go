@@ -153,13 +153,21 @@ type DocumentInput struct {
 	DocID string `json:"doc_id"`
 }
 
+type PutDocumentPathSegment struct {
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	Kind  string `json:"kind"`
+}
+
 type PutDocumentSource struct {
-	Provider    string `json:"provider"`
-	Title       string `json:"title"`
-	PageID      string `json:"page_id"`
-	PageVersion int64  `json:"page_version"`
-	LibraryKind string `json:"library_kind"`
-	ContentType string `json:"content_type"`
+	Provider     string                   `json:"provider"`
+	SourceID     string                   `json:"source_id"`
+	Title        string                   `json:"title"`
+	PageID       string                   `json:"page_id"`
+	PageVersion  int64                    `json:"page_version"`
+	LibraryKind  string                   `json:"library_kind"`
+	ContentType  string                   `json:"content_type"`
+	PathSegments []PutDocumentPathSegment `json:"path_segments,omitempty"`
 }
 
 type PutDocumentInput struct {
