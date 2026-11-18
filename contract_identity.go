@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "5f6a6cba1f3def1d850219fa482130e70d04a7836ee2b5412656d4a2fba9480e"
+const ContractSHA256 = "88741d653e4d03182735ee5e1d6ae0ab0b0d718a630d4a9eadf4d9c63a702ddf"
 
-const contractMaterial = `connector-contract-v21
+const contractMaterial = `connector-contract-v22
 PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
@@ -117,6 +117,12 @@ SMTPTransport.SendSMTP(context.Context,SMTPRequest)(SMTPResult,error)
 SMTPRequest.SecretPassword=RuntimeInjectedImmediatelyBeforeDispatchAndNeverSerialized
 MQTTTransport.ExecuteMQTT(context.Context,MQTTRequest)(MQTTResult,error)
 MQTTRequest.SecretUsername,SecretPassword,SecretCertificate,SecretPrivateKey=RuntimeInjectedImmediatelyBeforeDispatchAndNeverSerialized
+WebSocketTransport.OpenWebSocket(context.Context,WebSocketRequest)(WebSocketSession,error)
+WebSocketRequest.SecretHeaders=RuntimeInjectedImmediatelyBeforeHandshakeAndNeverSerialized
+WebSocketSession.Send(context.Context,WebSocketMessage)error
+WebSocketSession.Receive(context.Context)(WebSocketMessage,error)
+WebSocketSession.Close(context.Context)error
+WebSocketExecution=RuntimeOwnedDialingTLSRedirectsFrameLimitsDeadlinesSecretInjectionAndClosure
 FilesystemTransport.ExecuteFilesystem(context.Context,FilesystemRequest)(FilesystemResult,error)
 FilesystemOperation=probe,read,write,delete
 FilesystemExecution=RuntimeOwnedRootAndPathValidation,BoundedRead,DurableStagedWrite,Delete
@@ -137,7 +143,7 @@ func ComputedContractSHA256() string {
 	structs := []any{
 		Connection{}, OAuthAuthorizationRequest{}, OAuthCodeExchangeRequest{}, OAuthTokens{}, Principal{}, CallRequest{}, CallResult{}, ResourceHealthReport{}, TestConnectionRequest{}, TestConnectionResult{}, VerifyWebhookRequest{}, WebhookSecurityEvidence{}, WebhookExternalIdentity{}, WebhookDeliveryReceipt{}, VerifiedWebhook{}, ProviderError{}, IdempotencyContract{}, CompensationContract{}, ReliabilityContract{}, ReconcileRequest{}, ReconcileResult{}, BackgroundTaskDescriptor{}, BackgroundRequest{}, BackgroundEvent{}, BackgroundCommit{}, BackgroundProgress{}, BackgroundResult{},
 		DeliveryResult{}, OperationDescriptor{}, FieldLocalization{}, ConfigValidation{}, ConfigField{}, SecretField{}, ProviderSchema{}, ProviderDescriptor{}, ProviderSet{},
-		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{}, SMTPRequest{}, SMTPResult{}, MQTTRequest{}, MQTTResult{}, FilesystemRequest{}, FilesystemResult{}, ProcessRequest{},
+		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{}, SMTPRequest{}, SMTPResult{}, MQTTRequest{}, MQTTResult{}, WebSocketRequest{}, WebSocketMessage{}, FilesystemRequest{}, FilesystemResult{}, ProcessRequest{},
 	}
 	var material strings.Builder
 	material.WriteString(contractMaterial)

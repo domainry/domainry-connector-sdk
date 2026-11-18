@@ -70,6 +70,39 @@ type MQTTResult struct {
 	PacketID  uint16 `json:"packet_id,omitempty"`
 }
 
+// WebSocketTransport is an optional host-owned capability for Providers that
+// consume or publish framed WebSocket messages. The host owns dialing, TLS,
+// redirects, frame limits, deadlines, secret header injection, and closure.
+type WebSocketTransport interface {
+	OpenWebSocket(context.Context, WebSocketRequest) (WebSocketSession, error)
+}
+
+type WebSocketMessageType string
+
+const (
+	WebSocketMessageText   WebSocketMessageType = "text"
+	WebSocketMessageBinary WebSocketMessageType = "binary"
+)
+
+type WebSocketRequest struct {
+	URL             string              `json:"url"`
+	Headers         map[string][]string `json:"headers,omitempty"`
+	SecretHeaders   map[string][]string `json:"-"`
+	Subprotocols    []string            `json:"subprotocols,omitempty"`
+	MaxMessageBytes int64               `json:"max_message_bytes,omitempty"`
+}
+
+type WebSocketMessage struct {
+	Type WebSocketMessageType `json:"type"`
+	Data []byte               `json:"data"`
+}
+
+type WebSocketSession interface {
+	Send(context.Context, WebSocketMessage) error
+	Receive(context.Context) (WebSocketMessage, error)
+	Close(context.Context) error
+}
+
 // FilesystemTransport is an optional host-owned capability for Providers
 // that operate on a configured local filesystem. The host owns root and path
 // validation, permissions, bounded reads, durable staged writes, and deletion.

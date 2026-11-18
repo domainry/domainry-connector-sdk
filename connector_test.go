@@ -564,7 +564,7 @@ func TestProviderRegistryPreservesOnlyCapabilitiesActuallyImplemented(t *testing
 }
 
 func TestContractIdentityIsStable(t *testing.T) {
-	if ContractVersion != "connector-contract-v21" {
+	if ContractVersion != "connector-contract-v22" {
 		t.Fatalf("connector contract version=%q", ContractVersion)
 	}
 	if actual := ComputedContractSHA256(); actual != ContractSHA256 {
@@ -686,6 +686,34 @@ func TestMQTTSecretsAreNotSerialized(t *testing.T) {
 	transport := reflect.TypeOf((*MQTTTransport)(nil)).Elem()
 	if transport.NumMethod() != 1 || transport.Method(0).Name != "ExecuteMQTT" {
 		t.Fatalf("MQTTTransport=%v", transport)
+	}
+}
+
+func TestWebSocketTransportExposesGovernedFramedSessions(t *testing.T) {
+	payload, err := json.Marshal(WebSocketRequest{URL: "wss://gateway.example.test", SecretHeaders: map[string][]string{"Authorization": {"Bearer resolved-secret"}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Contains(payload, []byte("Authorization")) || bytes.Contains(payload, []byte("resolved-secret")) {
+		t.Fatalf("serialized WebSocketRequest leaked secret material: %s", payload)
+	}
+	transport := reflect.TypeOf((*WebSocketTransport)(nil)).Elem()
+	if transport.NumMethod() != 1 || transport.Method(0).Name != "OpenWebSocket" {
+		t.Fatalf("WebSocketTransport=%v", transport)
+	}
+	session := reflect.TypeOf((*WebSocketSession)(nil)).Elem()
+	if session.NumMethod() != 3 {
+		t.Fatalf("WebSocketSession methods=%d", session.NumMethod())
+	}
+	for _, method := range []string{"Close", "Receive", "Send"} {
+		if _, ok := session.MethodByName(method); !ok {
+			t.Fatalf("WebSocketSession is missing %s", method)
+		}
+	}
+	for _, messageType := range []WebSocketMessageType{WebSocketMessageText, WebSocketMessageBinary} {
+		if messageType == "" {
+			t.Fatal("WebSocket message type must be stable")
+		}
 	}
 }
 
