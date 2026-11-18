@@ -55,6 +55,9 @@ type Response struct { Name string ` + "`json:\"name\"`" + ` }
 
 type ProjectProvider struct { connector.Adapter }
 
+type StreamSink struct{}
+func (StreamSink) Commit(context.Context, connector.StreamCheckpoint) error { return nil }
+
 func (ProjectProvider) ValidateConfig(connector.Connection) error { return nil }
 
 func (ProjectProvider) TestConnection(context.Context, connector.TestConnectionRequest) (connector.TestConnectionResult, error) {
@@ -67,6 +70,13 @@ func (ProjectProvider) VerifyWebhook(context.Context, connector.VerifyWebhookReq
 
 func (ProjectProvider) Reconcile(context.Context, connector.ReconcileRequest) (connector.ReconcileResult, error) {
 	return connector.ReconcileResult{Outcome: connector.ReconciliationSucceeded}, nil
+}
+
+func (ProjectProvider) Streams(connector.Connection) []connector.StreamDescriptor {
+	return []connector.StreamDescriptor{{Key:"messages", StateVersion:1}}
+}
+func (ProjectProvider) RunStream(ctx context.Context, request connector.StreamRequest, sink connector.StreamSink) error {
+	return sink.Commit(ctx, connector.StreamCheckpoint{State: []byte(` + "`{}`" + `)})
 }
 
 func (ProjectProvider) AuthorizationURL(connector.OAuthAuthorizationRequest) (string, error) { return "https://example.test/authorize", nil }
@@ -82,6 +92,8 @@ var _ connector.ConfigValidator = ProjectProvider{}
 var _ connector.ConnectionTester = ProjectProvider{}
 var _ connector.WebhookVerifier = ProjectProvider{}
 var _ connector.Reconciler = ProjectProvider{}
+var _ connector.StreamProcessor = ProjectProvider{}
+var _ connector.StreamSink = StreamSink{}
 
 func classifiedFailures(cause error) []error {
 	return []error{

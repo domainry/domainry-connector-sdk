@@ -59,6 +59,11 @@ func (a *frozenAdapter) BackgroundProcessor() (BackgroundProcessor, bool) {
 	return processor, ok
 }
 
+func (a *frozenAdapter) StreamProcessor() (StreamProcessor, bool) {
+	processor, ok := a.delegate.(StreamProcessor)
+	return processor, ok
+}
+
 func (a *frozenAdapter) BackgroundCleanupProcessor() (BackgroundCleanupProcessor, bool) {
 	processor, ok := a.delegate.(BackgroundCleanupProcessor)
 	return processor, ok

@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "88741d653e4d03182735ee5e1d6ae0ab0b0d718a630d4a9eadf4d9c63a702ddf"
+const ContractSHA256 = "bcec5c0ae3c2cf18d3819144ba41365ae2fc32859895de4e2407af3bdd4fffe4"
 
-const contractMaterial = `connector-contract-v22
+const contractMaterial = `connector-contract-v23
 PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
@@ -82,6 +82,16 @@ BackgroundExecution=ProviderOwnedStateSemanticsAndRuntimeOwnedPersistenceLeaseSe
 BackgroundCommit=RuntimeExecutesOnlyAfterDurableStateAndEventCommit
 BackgroundObservation=ProviderSourceFact;PositiveAggregateValue;HostAllowlistPersistenceOnly;DuplicateKeysRejected
 BackgroundProgress=ProviderOwnedUserSafeInitializationSnapshot;HostPersistsSeparatelyFromOpaqueState;ProductLocalizesCanonicalPhaseAndUnit
+StreamProcessor.Streams(Connection)[]StreamDescriptor
+StreamProcessor.RunStream(context.Context,StreamRequest,StreamSink)error
+StreamCapabilityProvider.StreamProcessor()(StreamProcessor,bool)
+StreamSink.Commit(context.Context,StreamCheckpoint)error
+StreamDescriptor.Validate()error
+StreamRequest.Validate()error
+StreamCheckpoint.Validate()error
+StreamExecution=ProviderOwnedRemoteProtocolAndResourceClosure;IntegrationOwnedDurableStateLeaseFenceRetrySecretsTransportAndShutdown
+StreamCommit=ProviderMustAwaitAtomicStateAndEventCommitBeforeAdvancingRemoteSequence
+StreamCancellation=ProviderMustHonorContextAndReleaseEveryRemoteResourceBeforeReturn
 CompensationMode=none,explicit,saga
 CompensationTarget=DistinctTerminalIdempotentProviderReconcilableEnqueueWriteOperation
 CompensationExecution=Adapter.CallViaCommittedOutbox
@@ -100,7 +110,7 @@ SecretTestRequirement=optional,when_bound
 NewProvider(ProviderSchema,...BoundOperation)(Adapter,error)
 Registry.Register(Adapter)error
 Registry.RegisterProviderSet(ProviderSet)error
-RegistryRegistration=ValidatedDescriptorSnapshotAndExactOptionalCapabilitiesIncludingConfigValidator,ConnectionTester,WebhookVerifier,Reconciler,BackgroundProcessor,BackgroundCleanupProcessor
+RegistryRegistration=ValidatedDescriptorSnapshotAndExactOptionalCapabilitiesIncludingConfigValidator,ConnectionTester,WebhookVerifier,Reconciler,BackgroundProcessor,BackgroundCleanupProcessor,StreamProcessor
 Registry.Freeze()
 Registry.Provider(string,string)(Adapter,bool)
 Registry.Descriptors()[]ProviderDescriptor
@@ -141,7 +151,7 @@ AdapterSecretUpdates=ProviderDescriptorSecretFieldsOnly
 
 func ComputedContractSHA256() string {
 	structs := []any{
-		Connection{}, OAuthAuthorizationRequest{}, OAuthCodeExchangeRequest{}, OAuthTokens{}, Principal{}, CallRequest{}, CallResult{}, ResourceHealthReport{}, TestConnectionRequest{}, TestConnectionResult{}, VerifyWebhookRequest{}, WebhookSecurityEvidence{}, WebhookExternalIdentity{}, WebhookDeliveryReceipt{}, VerifiedWebhook{}, ProviderError{}, IdempotencyContract{}, CompensationContract{}, ReliabilityContract{}, ReconcileRequest{}, ReconcileResult{}, BackgroundTaskDescriptor{}, BackgroundRequest{}, BackgroundEvent{}, BackgroundCommit{}, BackgroundProgress{}, BackgroundResult{},
+		Connection{}, OAuthAuthorizationRequest{}, OAuthCodeExchangeRequest{}, OAuthTokens{}, Principal{}, CallRequest{}, CallResult{}, ResourceHealthReport{}, TestConnectionRequest{}, TestConnectionResult{}, VerifyWebhookRequest{}, WebhookSecurityEvidence{}, WebhookExternalIdentity{}, WebhookDeliveryReceipt{}, VerifiedWebhook{}, ProviderError{}, IdempotencyContract{}, CompensationContract{}, ReliabilityContract{}, ReconcileRequest{}, ReconcileResult{}, BackgroundTaskDescriptor{}, BackgroundRequest{}, BackgroundEvent{}, BackgroundCommit{}, BackgroundProgress{}, BackgroundResult{}, StreamDescriptor{}, StreamRequest{}, StreamCheckpoint{},
 		DeliveryResult{}, OperationDescriptor{}, FieldLocalization{}, ConfigValidation{}, ConfigField{}, SecretField{}, ProviderSchema{}, ProviderDescriptor{}, ProviderSet{},
 		HTTPRequest{}, HTTPResponse{}, SQLRequest{}, SQLResult{}, SMTPRequest{}, SMTPResult{}, MQTTRequest{}, MQTTResult{}, WebSocketRequest{}, WebSocketMessage{}, FilesystemRequest{}, FilesystemResult{}, ProcessRequest{},
 	}
