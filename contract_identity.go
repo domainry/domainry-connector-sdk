@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const ContractSHA256 = "bcec5c0ae3c2cf18d3819144ba41365ae2fc32859895de4e2407af3bdd4fffe4"
+const ContractSHA256 = "190b7a570ae747ea04ff16d77a8cde127b6cc5215dd68f4d951bd70bef40075e"
 
-const contractMaterial = `connector-contract-v23
+const contractMaterial = `connector-contract-v24
 PackagePath=github.com/domainry/domainry-connector-sdk
 CallOperation[Input,Output]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
 EnqueueOperation[Input]{ConnectorKey,ProviderKey,Key,ContractSHA256,Reliability}
@@ -131,8 +131,9 @@ WebSocketTransport.OpenWebSocket(context.Context,WebSocketRequest)(WebSocketSess
 WebSocketRequest.SecretHeaders=RuntimeInjectedImmediatelyBeforeHandshakeAndNeverSerialized
 WebSocketSession.Send(context.Context,WebSocketMessage)error
 WebSocketSession.Receive(context.Context)(WebSocketMessage,error)
-WebSocketSession.Close(context.Context)error
-WebSocketExecution=RuntimeOwnedDialingTLSRedirectsFrameLimitsDeadlinesSecretInjectionAndClosure
+WebSocketSession.Close(context.Context,WebSocketClose)error
+WebSocketClose=ProviderOwnedWireValidCodeAndBoundedUTF8Reason
+WebSocketExecution=RuntimeOwnedDialingTLSRedirectsFrameLimitsDeadlinesSecretInjectionAndClosure;OpenContextOwnsSessionLifetime
 FilesystemTransport.ExecuteFilesystem(context.Context,FilesystemRequest)(FilesystemResult,error)
 FilesystemOperation=probe,read,write,delete
 FilesystemExecution=RuntimeOwnedRootAndPathValidation,BoundedRead,DurableStagedWrite,Delete

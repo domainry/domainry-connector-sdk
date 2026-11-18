@@ -2,8 +2,10 @@ package connector
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"time"
+	"unicode/utf8"
 )
 
 // Transport is the only outbound I/O capability supplied to project-owned
@@ -73,6 +75,10 @@ type MQTTResult struct {
 // WebSocketTransport is an optional host-owned capability for Providers that
 // consume or publish framed WebSocket messages. The host owns dialing, TLS,
 // redirects, frame limits, deadlines, secret header injection, and closure.
+// The context passed to OpenWebSocket owns the returned session: cancellation
+// forcibly closes the connection even when a Provider misses an explicit
+// Close path. Providers should still call Close to attempt a normal close
+// handshake before their owner context is cancelled.
 type WebSocketTransport interface {
 	OpenWebSocket(context.Context, WebSocketRequest) (WebSocketSession, error)
 }
@@ -97,10 +103,37 @@ type WebSocketMessage struct {
 	Data []byte               `json:"data"`
 }
 
+// WebSocketClose describes a protocol-owned close handshake. Code must be a
+// wire-valid RFC 6455 or application status. A Provider chooses whether a
+// remote session should be invalidated or remain resumable; the host validates
+// and performs the bounded handshake.
+type WebSocketClose struct {
+	Code   int    `json:"code"`
+	Reason string `json:"reason,omitempty"`
+}
+
+func (c WebSocketClose) Validate() error {
+	if !validWebSocketCloseCode(c.Code) {
+		return fmt.Errorf("WebSocket close code %d is not wire-valid", c.Code)
+	}
+	if !utf8.ValidString(c.Reason) || len(c.Reason) > 123 {
+		return fmt.Errorf("WebSocket close reason must be valid UTF-8 up to 123 bytes")
+	}
+	return nil
+}
+
+func validWebSocketCloseCode(code int) bool {
+	switch code {
+	case 1004, 1005, 1006, 1015:
+		return false
+	}
+	return (code >= 1000 && code <= 1014) || (code >= 3000 && code <= 4999)
+}
+
 type WebSocketSession interface {
 	Send(context.Context, WebSocketMessage) error
 	Receive(context.Context) (WebSocketMessage, error)
-	Close(context.Context) error
+	Close(context.Context, WebSocketClose) error
 }
 
 // FilesystemTransport is an optional host-owned capability for Providers

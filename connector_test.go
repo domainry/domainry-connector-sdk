@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -564,7 +565,7 @@ func TestProviderRegistryPreservesOnlyCapabilitiesActuallyImplemented(t *testing
 }
 
 func TestContractIdentityIsStable(t *testing.T) {
-	if ContractVersion != "connector-contract-v23" {
+	if ContractVersion != "connector-contract-v24" {
 		t.Fatalf("connector contract version=%q", ContractVersion)
 	}
 	if actual := ComputedContractSHA256(); actual != ContractSHA256 {
@@ -713,6 +714,16 @@ func TestWebSocketTransportExposesGovernedFramedSessions(t *testing.T) {
 	for _, messageType := range []WebSocketMessageType{WebSocketMessageText, WebSocketMessageBinary} {
 		if messageType == "" {
 			t.Fatal("WebSocket message type must be stable")
+		}
+	}
+	for _, close := range []WebSocketClose{{Code: 1000}, {Code: 1012, Reason: "restart"}, {Code: 4000, Reason: "resume"}} {
+		if err := close.Validate(); err != nil {
+			t.Fatalf("valid close=%+v error=%v", close, err)
+		}
+	}
+	for _, close := range []WebSocketClose{{Code: 0}, {Code: 1005}, {Code: 2000}, {Code: 5000}, {Code: 1000, Reason: string([]byte{0xff})}, {Code: 1000, Reason: strings.Repeat("x", 124)}} {
+		if err := close.Validate(); err == nil {
+			t.Fatalf("invalid close accepted=%+v", close)
 		}
 	}
 }
